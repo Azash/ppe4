@@ -10,17 +10,16 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 
- class ManageTeam implements ActionListener, ListSelectionListener {
-	//private static final long serialVersionUID = 1L;
-	private JPanel pan;
+ class ManageTeam extends JPanel implements ActionListener, ListSelectionListener {
+	private static final long serialVersionUID = 1L;
 	private JButton butAddTeam;
 	private JButton butDelTeam;
+	private JButton butLoadMenu;
 	private JButton butSave;
 	private JTextField textBox;
 	private JList teamList;
@@ -28,56 +27,49 @@ import javax.swing.ListSelectionModel;
 	//liste qui va contenir les équipes. Elle est affiché dans le JList (teamList)
 	//Et c'est sur cette liste (listData) qu'on fait des ajouts ou des suppressions, PAS SUR la JList (teamList)
 	private DefaultListModel<String> listData = new DefaultListModel<String>(); 
-	//Une marge défini pour ne pas réécrire 20 sur les position x, ou y quand on ne veux pas que les boutons etc... soit collés au bord 
-	private static final int MARGE = 20;
-	private static final int BUT_WIDTH = 160;
-	private static final int BUT_HEIGHT = 20;
 	
 	//Correspond au numéro d'index du JList (teamList) sélèctionné (par default -1 car rien n'est sélèctionné)
 	private int idSelected = -1;
 	
 	public ManageTeam() {
-	}
-	
-	public JPanel getManagePan(int fenWidth, int fenHeight) {
-		pan = new JPanel();
-		pan.setLayout(null);
+		this.setLayout(null);
 		
 		//Initialisation de la zone de saisie
 		textBox = new JTextField("", 10);		//textBox.addKeyListener(new KeyAdapter() {public void keyPressed(KeyEvent e) { if (e.getKeyCode() == KeyEvent.VK_ENTER) System.out.println("rien"); }});
 		textBox.addActionListener(this);
-		textBox.setBounds(MARGE, MARGE, BUT_WIDTH, BUT_HEIGHT);
-		pan.add(textBox);
+		textBox.setBounds(Gvar.MARGE, Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(textBox);
 		
 		//Initialisation du bouton d'ajout d'équipe
 		butAddTeam = new JButton("Ajouter une équipe");
 		butAddTeam.addActionListener(this);
-		butAddTeam.setBounds(MARGE, 50, BUT_WIDTH, BUT_HEIGHT);
-		pan.add(butAddTeam);
+		butAddTeam.setBounds(Gvar.MARGE, textBox.getY() + textBox.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(butAddTeam);
 		
 		//Initialisation de la listbox affichant les équipes
 		teamList = new JList(listData);
-		System.out.println((2 * MARGE) + butAddTeam.getWidth());
-		System.out.println(fenHeight - (2 * MARGE));
+		System.out.println((2 * Gvar.MARGE) + butAddTeam.getWidth());
+		System.out.println(Gvar.FEN_HEIGHT - (2 * Gvar.MARGE));
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
-		teamList.setBounds(fenWidth - (300 + MARGE), MARGE, 300, fenHeight - (5 * MARGE));
-		pan.add(teamList);
+		teamList.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, Gvar.FEN_WIDTH - (butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE) - Gvar.MARGE, Gvar.FEN_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT) - 25);
+		this.add(teamList);
 		
 		//Initialisation du bouton de suppression d'équipe
 		butDelTeam = new JButton("Supprimer l'équipe sélèctionnée");
 		butDelTeam.addActionListener(this);
-		butDelTeam.setBounds(fenWidth - (teamList.getWidth() + MARGE), fenHeight - (3 * MARGE), teamList.getWidth(), BUT_HEIGHT);
-		pan.add(butDelTeam);
+		butDelTeam.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, teamList.getY() + teamList.getHeight() + Gvar.MARGE, teamList.getWidth(), Gvar.BUT_HEIGHT);
+		this.add(butDelTeam);
 		
 		butSave = new JButton("Sauvegarder");
 		butSave.addActionListener(this);
-		butSave.setBounds(MARGE, fenHeight - (3 * MARGE), BUT_WIDTH, BUT_HEIGHT);
-		pan.add(butSave);
+		butSave.setBounds(Gvar.MARGE, butAddTeam.getY() + butAddTeam.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(butSave);
 		
-		pan.setVisible(true);
-		
-		return pan;
+		butLoadMenu = new JButton("Revenir au menu");
+		butLoadMenu.addActionListener(this);
+		butLoadMenu.setBounds(Gvar.MARGE, butSave.getY() + butSave.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(butLoadMenu);
 	}
 	
 	/*public void paintComponent(Graphics g) {
@@ -114,6 +106,10 @@ import javax.swing.ListSelectionModel;
 						writer.println(listData.get(i).toString());
 					writer.close();
 				}
+			}
+			else if (e.getSource() == butLoadMenu) { // BOUTON SAUVEGARDE CLIQUE
+				Main.fen.getCl().show(Main.fen.getGlobalPan(), Main.fen.getTitleMenu());
+				Gvar.CUR_PAN = Main.fen.getTitleMenu();
 			}
 	}
 	
