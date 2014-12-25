@@ -3,6 +3,4 @@ tata
 titi
 tutu
 tete
-tyty
-treret
-tuyrturtu
+test

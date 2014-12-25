@@ -1,6 +1,7 @@
 //import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,20 +18,23 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 
  class ManageTeam extends JPanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
+	private JScrollPane scrollTeamList;
 	private JButton butAddTeam;
 	private JButton butDelTeam;
 	private JButton butLoadMenu;
+	private JButton butLoadClose;
 	private JButton butSave;
 	private JTextField textBox;
 	private JList teamList;
 	private boolean isAlreadySaved = true; // Est ce que la liste des équipes a subie une modification ? 
-	
+	private boolean isRemoved = false;
 	//liste qui va contenir les équipes. Elle est affiché dans le JList (teamList)
 	//Et c'est sur cette liste (listData) qu'on fait des ajouts ou des suppressions, PAS SUR la JList (teamList)
 	//public DefaultListModel<String> listData = new DefaultListModel<String>(); 
@@ -52,18 +56,20 @@ import javax.swing.ListSelectionModel;
 		butAddTeam.addActionListener(this);
 		butAddTeam.setBounds(Gvar.MARGE, textBox.getY() + textBox.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butAddTeam);
-		
+			
 		//Initialisation de la listbox affichant les équipes
 		teamList = new JList(Gvar.listData);
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
-		teamList.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, Gvar.FEN_WIDTH - (butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE) - Gvar.MARGE, Gvar.FEN_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT) - 25);
-		this.add(teamList);
+		scrollTeamList = new JScrollPane();
+		scrollTeamList.setViewportView(teamList);
+		scrollTeamList.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, Gvar.FEN_WIDTH - (butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE) - Gvar.MARGE, Gvar.FEN_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.FOOTER_HEIGHT));
+		this.add(scrollTeamList);
 		
 		//Initialisation du bouton de suppression d'équipe
 		butDelTeam = new JButton("Supprimer l'équipe sélèctionnée");
 		butDelTeam.addActionListener(this);
-		butDelTeam.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, teamList.getY() + teamList.getHeight() + Gvar.MARGE, teamList.getWidth(), Gvar.BUT_HEIGHT);
+		butDelTeam.setBounds(scrollTeamList.getX(), scrollTeamList.getY() + scrollTeamList.getHeight() + Gvar.MARGE, scrollTeamList.getWidth(), Gvar.BUT_HEIGHT);
 		this.add(butDelTeam);
 		
 		//Initialisation bouton sauver
@@ -72,32 +78,57 @@ import javax.swing.ListSelectionModel;
 		butSave.setBounds(Gvar.MARGE, butAddTeam.getY() + butAddTeam.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butSave);
 		
-		//Initialisation bouton retour au menu
+//-----------------------------------------------------------------------------------------
+//ZONE A COPIER/COLLER POUR METTRE LES BOUTONS Menu ET Fermer DANS UN PANEL (Ne pas oublier le code dans actionPerformed et  de creer les 2 variables : JButton butLoadMenu, JButton butLoadClose)
+//-----------------------------------------------------------------------------------------
+		//Initialisation du bouton pour revenir au menu
 		butLoadMenu = new JButton(Gvar.BUT_STR_LOAD_Menu);
 		butLoadMenu.addActionListener(this);
-		butLoadMenu.setBounds(Gvar.MARGE, butDelTeam.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		butLoadMenu.setBounds(Gvar.MARGE, Gvar.FEN_HEIGHT - Gvar.FOOTER_HEIGHT, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butLoadMenu);
 		
-		parseTxtFile(); // Si le fichier ListeDesEquipes existe déjà je l'importe
+		//Initialisation du bouton pour quitter le programme
+		butLoadClose = new JButton(Gvar.BUT_STR_LOAD_Close);
+		butLoadClose.addActionListener(this);
+		butLoadClose.setBounds(butLoadMenu.getX() + butLoadMenu.getWidth() + Gvar.MARGE, butLoadMenu.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(butLoadClose);
+//-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+		
+		parseTxtFile(); // Si le fichier ListeDesEquipes.txt existe déjà je l'importe
 	}
 	
 	/*public void paintComponent(Graphics g) {
 		
 	}*/
 	
+	//Declenché lorsque un bouton est cliqué
 	@Override
 	public void actionPerformed(ActionEvent e) {
 			if ((e.getSource() == butAddTeam || e.getSource() == textBox) && !textBox.getText().equals("")) { // BOUTON AJOUTE CLIQUE
-				isAlreadySaved = false;
-				Gvar.listData.addElement(textBox.getText().toString());
-				textBox.setText("");
-				textBox.requestFocus();
+				if (!isDoublon(textBox.getText().toString())) {
+					isAlreadySaved = false;
+					Gvar.listData.addElement(textBox.getText().toString());
+					textBox.setText("");
+					textBox.requestFocus();
+				}
+				else
+					JOptionPane.showMessageDialog(this, "Cette equipe existe déjà !");
 			}
 			else if (e.getSource() == butDelTeam && idSelected >= 0) { // BOUTON SUPPRIMER CLIQUE
 				isAlreadySaved = false;
+				isRemoved = true;
 				//removeElementAt declenche la fonction valueChanged de la JList (teamList)
 				Gvar.listData.remove(idSelected);
-				textBox.requestFocus();
+				if (idSelected < Gvar.listData.getSize())
+					teamList.setSelectedIndex(idSelected);
+				else if (Gvar.listData.getSize() >= 0) 
+					teamList.setSelectedIndex(0);
+				else
+					textBox.requestFocus();
+				isRemoved = false;
+				idSelected = teamList.getSelectedIndex(); 
+				//teamList.requestFocus();
 			}
 			else if (e.getSource() == butSave && Gvar.listData.getSize() > 0) { // BOUTON SAUVEGARDE CLIQUE
 				// Generé automatiquement : gestion des erreurs. Cependant ca ne devrai pas posé probleme :
@@ -119,14 +150,19 @@ import javax.swing.ListSelectionModel;
 				Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_Menu);
 				Gvar.CUR_PAN = Gvar.BUT_STR_LOAD_Menu;
 			}
+			else if (e.getSource() == butLoadClose) { // BOUTON SAUVEGARDE CLIQUE
+				Main.fen.dispatchEvent(new WindowEvent(Main.fen, WindowEvent.WINDOW_CLOSING));
+			}
 	}
 	
+	//Declenché lorsque un element different de la liste est selectionné
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == teamList) {
 			// En cas d'erreur ou de non selection retourne -1
 			// Donc initialise idSelected a -1 a chaque fois qu'on supprime un element car plus rien est selectionné
-			idSelected = teamList.getSelectedIndex(); 
+			if (!isRemoved)
+				idSelected = teamList.getSelectedIndex(); 
 		}
 	}
 	
@@ -139,13 +175,25 @@ import javax.swing.ListSelectionModel;
 			try {
 				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
 				while((Line = Buffer.readLine()) != null) {
-					if (Line != "") {
+					if (Line != "" && !isDoublon(Line)) {
 						Gvar.listData.add(i, Line);
 						i++;
 					}
 				}
+				Buffer.close();
 			} catch (IOException e) { } 
+			
 		}
+	}
+	
+	private boolean isDoublon(String StrToCheck) {
+		int i = 0;
+		while (i < Gvar.listData.getSize()) {
+			if (StrToCheck.contains(Gvar.listData.get(i).toString()))
+				return true;
+			i++;
+		}
+		return false;
 	}
 	
 	public boolean getIsAlreadySaved() {
