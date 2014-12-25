@@ -1,6 +1,4 @@
 toto
 tata
 titi
-tutu
-tete
 test

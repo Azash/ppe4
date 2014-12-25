@@ -13,26 +13,21 @@ import javax.swing.JPanel;
 class Fen extends JFrame {
 	private static final long serialVersionUID = 1L;
 	final JFrame Gfen = this;
-	private ManageTeam panManageTeam;
-	private ManageSelection panManageSelection;
-	private Menu panMenu;
+	private ManageTeam panManageTeam = new ManageTeam(); // Panel Gestion des Equipe
+	private ManagePoules panManagePoules = new ManagePoules(); // Panel Gestion des Poules
+	private ManageSelection panManageSelection = new ManageSelection(); // Panel Gestion des Equipe selectionnées pour le tournoi
+	private Menu panMenu = new Menu(); // Panel Menu
 	private CardLayout cl = new CardLayout();
 	private JPanel GlobalPan = new JPanel(cl); //Creation d'une sorte d'ensemble de Panel
-	private final String T_Menu = Gvar.BUT_STR_LOAD_Menu;
-	private final String T_ManageTeam = Gvar.BUT_STR_LOAD_ManageTeam;
-	private final String T_ManageSelection = Gvar.BUT_STR_LOAD_ManageSelection;
 	
 	public Fen() {
-		panManageTeam = new ManageTeam(); // Panel Gestion des Equipe
-		panManageSelection = new ManageSelection(); // Panel Gestion des Equipe selectionnées pour le tournoi
-		panMenu = new Menu(); // Panel Menu
-		
-		GlobalPan.add(panManageSelection, T_ManageSelection); // J'ajoute panManageSelection a l'ensemble des panel
-		GlobalPan.add(panMenu, T_Menu); // J'ajoute panMenu a l'ensemble des panel
-		GlobalPan.add(panManageTeam, T_ManageTeam); // J'ajoute panManageTeam a l'ensemble des panel
-		cl.show(GlobalPan , T_Menu); // Je selectionne le panel Menu
+		GlobalPan.add(panManagePoules, Gvar.BUT_STR_LOAD_ManagePoules); // J'ajoute panManagePoules a l'ensemble des panel
+		GlobalPan.add(panManageSelection, Gvar.BUT_STR_LOAD_ManageSelection); // J'ajoute panManageSelection a l'ensemble des panel
+		GlobalPan.add(panMenu, Gvar.BUT_STR_LOAD_Menu); // J'ajoute panMenu a l'ensemble des panel
+		GlobalPan.add(panManageTeam, Gvar.BUT_STR_LOAD_ManageTeam); // J'ajoute panManageTeam a l'ensemble des panel
+		cl.show(GlobalPan , Gvar.BUT_STR_LOAD_Menu); // Je selectionne le panel Menu
 		this.add(GlobalPan); //Panel chargé dans la fenetre à l'ouverture du programme (donc un ensemble de Panel actuellement c'est T_Menu que j'affiche cf ligne d'au dessus)
-		
+		this.setTitle(Gvar.CUR_PAN);
 		// Je parametre deux trois trucs de la fenetre
 		this.setResizable(false);
 		this.setAlwaysOnTop(true);
@@ -74,7 +69,6 @@ class Fen extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	
 //----------------------------------------------------------------------------------------------------------------------	
 //--------------------- ENSEMBLE DE GETTER QUI VONT ME PERMETTRE DE PERMUTER ENTRE LES DIFFERENT PANEL -----------------
 //----------------------------------------------------------------------------------------------------------------------	
@@ -86,16 +80,12 @@ class Fen extends JFrame {
 		return cl;
 	}
 	
-	public String getTitleMenu() {
-		return T_Menu;
+	public ManageSelection getPanManageSelection() {
+		return panManageSelection;
 	}
 	
-	public String getTitleManageTeam() {
-		return T_ManageTeam;
-	}
-	
-	public JPanel getPanManageTeam() {
+	/*public JPanel getPanManageTeam() {
 			return panManageTeam;
-	}
+	}*/
 //----------------------------------------------------------------------------------------------------------------------	
 }

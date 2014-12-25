@@ -35,9 +35,6 @@ import javax.swing.ListSelectionModel;
 	private JList teamList;
 	private boolean isAlreadySaved = true; // Est ce que la liste des équipes a subie une modification ? 
 	private boolean isRemoved = false;
-	//liste qui va contenir les équipes. Elle est affiché dans le JList (teamList)
-	//Et c'est sur cette liste (listData) qu'on fait des ajouts ou des suppressions, PAS SUR la JList (teamList)
-	//public DefaultListModel<String> listData = new DefaultListModel<String>(); 
 	
 	//Correspond au numéro d'index du JList (teamList) sélèctionné (par default -1 car rien n'est sélèctionné)
 	private int idSelected = -1;
@@ -146,11 +143,12 @@ import javax.swing.ListSelectionModel;
 					isAlreadySaved = true;
 				}
 			}
-			else if (e.getSource() == butLoadMenu) { // BOUTON SAUVEGARDE CLIQUE
+			else if (e.getSource() == butLoadMenu) {
 				Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_Menu);
 				Gvar.CUR_PAN = Gvar.BUT_STR_LOAD_Menu;
+				Main.fen.setTitle(Gvar.CUR_PAN);
 			}
-			else if (e.getSource() == butLoadClose) { // BOUTON SAUVEGARDE CLIQUE
+			else if (e.getSource() == butLoadClose) {
 				Main.fen.dispatchEvent(new WindowEvent(Main.fen, WindowEvent.WINDOW_CLOSING));
 			}
 	}

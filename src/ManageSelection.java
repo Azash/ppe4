@@ -94,8 +94,27 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		this.add(butLoadClose);
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-		for (int i = 0; i < Gvar.listData.getSize(); i++)
-			listTeam.addElement(Gvar.listData.get(i).toString());
+		/*for (int i = 0; i < Gvar.listData.getSize(); i++)
+			listTeam.addElement(Gvar.listData.get(i).toString());*/
+		setListTeam();
+	}
+	
+	public void setListTeam() {
+		listTeam.clear();
+		for (int i = 0; i < Gvar.listData.getSize(); i++) {
+			if (!isDoublon(Gvar.listData.get(i).toString()))
+				listTeam.addElement(Gvar.listData.get(i).toString());
+		}
+	}
+	
+	private boolean isDoublon(String StrToCheck) {
+		int i = 0;
+		while (i < listSelected.getSize()) {
+			if (StrToCheck.contains(listSelected.get(i).toString()))
+				return true;
+			i++;
+		}
+		return false;
 	}
 	
 	//Declenché lorsque un bouton est cliqué
@@ -114,8 +133,9 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		else if (e.getSource() == butLoadMenu) {
 			Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_Menu);
 			Gvar.CUR_PAN = Gvar.BUT_STR_LOAD_Menu;
+			Main.fen.setTitle(Gvar.CUR_PAN);
 		}
-		else if (e.getSource() == butLoadClose) { // BOUTON SAUVEGARDE CLIQUE
+		else if (e.getSource() == butLoadClose) {
 			Main.fen.dispatchEvent(new WindowEvent(Main.fen, WindowEvent.WINDOW_CLOSING));
 		}
 	}
