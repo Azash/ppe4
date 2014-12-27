@@ -13,6 +13,15 @@ equipe 12
 equipe 13
 equipe 14
 equipe 15
-equipe 16
 equipe 17
 equipe 18
+equipe 16
+equipe 19
+equipe 20
+equipe 21
+equipe 22
+equipe 23
+equipe 24
+equipe 25
+equipe 26
+equipe 27

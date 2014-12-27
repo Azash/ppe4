@@ -13,7 +13,8 @@ public class Gvar {
 	public static final String FILE_NAME_TEAM_SELECTED = "ListeDesEquipesSelectionnees.txt";
 	public static final int MIN_TEAM_POULES = 3; //Nombre minimum d'equipe par poule
 	public static final int MAX_TEAM_POULES = 6; //Nombre maximum d'equipe par poule
-	public static final int POULE_HEIGHT = 80; // Hauteur de la liste d'une poule
+	public static final int POULE_HEIGHT = 150; // Hauteur de la liste d'une poule
+	public static final int POULE_WIDTH = 170; // Hauteur de la liste d'une poule
 	
 	// Attention deux noms ne peuvent être identiques
 	// Correspond au NOM du Panel et ce qu'on AFFICHE SUR LE BOUTON
