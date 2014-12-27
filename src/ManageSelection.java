@@ -4,6 +4,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -11,7 +19,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
+//import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -22,27 +30,29 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 	private JButton butSelectTeam;
 	private JButton butUnselectTeam;
 	private JButton butLoadClose;
+	private JButton butSave;
 	private JScrollPane scrollTeamList;
 	private JScrollPane scrollTeamSelected;
-	private JList teamList;
-	private JList teamSelected;
+	private JList<String> teamList;
+	private JList<String> teamSelected;
 	private JLabel labTeamList;
 	private JLabel labTeamSelected;
 	private DefaultListModel<String> listTeam = new DefaultListModel<String>();
-	private DefaultListModel<String> listSelected = new DefaultListModel<String>();
+	//public DefaultListModel<String> listSelected = new DefaultListModel<String>();
 	private int idSelected = -1;
 	private int idTeam = -1;
+	private boolean isAlreadySaved = true;
 	
 	public ManageSelection() {
 		this.setLayout(null);
 		
 		//Initialisation du label equipes dispos
 		labTeamList = new JLabel("Liste des équipes disponibles :");
-		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.FEN_WIDTH - ((4 * Gvar.MARGE) + 20)) / 2 - Gvar.MARGE, Gvar.MARGE);
+		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.FEN_WIDTH - ((4 * Gvar.MARGE) + 20)) / 2 - Gvar.MARGE, Gvar.LAB_HEIGHT);
 		this.add(labTeamList);
 		
 		//Initialisation de la listbox affichant les équipes
-		teamList = new JList(listTeam);
+		teamList = new JList<String>(listTeam);
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamList.addMouseListener(this);
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
@@ -69,7 +79,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		this.add(labTeamSelected);
 		
 		//Initialisation de la listbox affichant les équipes SELECTIONNEES
-		teamSelected = new JList(listSelected);
+		teamSelected = new JList<String>(Gvar.listSelected);
 		teamSelected.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamSelected.addMouseListener(this);
 		teamSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
@@ -94,41 +104,42 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		this.add(butLoadClose);
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-		/*for (int i = 0; i < Gvar.listData.getSize(); i++)
-			listTeam.addElement(Gvar.listData.get(i).toString());*/
-		setListTeam();
-	}
-	
-	public void setListTeam() {
-		listTeam.clear();
-		for (int i = 0; i < Gvar.listData.getSize(); i++) {
-			if (!isDoublon(Gvar.listData.get(i).toString()))
-				listTeam.addElement(Gvar.listData.get(i).toString());
-		}
-	}
-	
-	private boolean isDoublon(String StrToCheck) {
-		int i = 0;
-		while (i < listSelected.getSize()) {
-			if (StrToCheck.contains(listSelected.get(i).toString()))
-				return true;
-			i++;
-		}
-		return false;
+		butSave = new JButton("Sauver");
+		butSave.addActionListener(this);
+		butSave.setBounds(butLoadClose.getX() + butLoadClose.getWidth() + Gvar.MARGE, butLoadMenu.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		this.add(butSave);
+		
+		parseTxtFile(); // Si le fichier ListeDesEquipesSelectionnees.txt existe déjà je l'importe
 	}
 	
 	//Declenché lorsque un bouton est cliqué
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == butSelectTeam && idTeam != -1) {
-			listSelected.addElement(listTeam.get(idTeam).toString());
+			Gvar.listSelected.addElement(listTeam.get(idTeam).toString());
 			listTeam.remove(idTeam);
 			idTeam = -1;
+			isAlreadySaved = false;
 		}
 		else if (e.getSource() == butUnselectTeam && idSelected != -1) {
-			listTeam.addElement(listSelected.get(idSelected).toString());
-			listSelected.remove(idSelected);
+			listTeam.addElement(Gvar.listSelected.get(idSelected).toString());
+			Gvar.listSelected.remove(idSelected);
 			idSelected = -1;
+			isAlreadySaved = false;
+		}
+		else if (e.getSource() == butSave && Gvar.listSelected.getSize() > 0) {
+			PrintWriter writer = null;
+			try {
+				writer = new PrintWriter(Gvar.FILE_NAME_TEAM_SELECTED, "UTF-8");
+			} catch (FileNotFoundException | UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			}
+			if (!writer.equals(null)) {
+				for(int i = 0; i < Gvar.listSelected.getSize(); i++)
+					writer.println(Gvar.listSelected.get(i).toString());
+				writer.close();
+				isAlreadySaved = true;
+			}
 		}
 		else if (e.getSource() == butLoadMenu) {
 			Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_Menu);
@@ -139,7 +150,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 			Main.fen.dispatchEvent(new WindowEvent(Main.fen, WindowEvent.WINDOW_CLOSING));
 		}
 	}
-
+	
 	//Declenché lorsque un element different de la liste est selectionné
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
@@ -151,19 +162,32 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 
 	@Override
     public void mouseClicked(MouseEvent e) {
-		Rectangle r =  ((JList) e.getSource()).getCellBounds(0, ((JList) e.getSource()).getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
-		if (e.getClickCount() == 2 && r != null && r.contains(e.getPoint())) {
-			if (e.getSource() == teamList) {
-				int index = teamList.locationToIndex(e.getPoint());
-				listSelected.addElement(listTeam.get(index).toString());
-				listTeam.remove(index);
+		/*if (e.getSource() instanceof JList<?>) {
+			//JList<String> TmpJList = (JList<String>) e.getSource();*/
+			
+			if (e.getClickCount() == 2) {
+				Rectangle r;
+				if (e.getSource() == teamList) {
+					//Si je clalcul r deux fois c'est parce qu'autrement j'ai un warning que j'arrive pas a enlever et j'aime pas ca
+					r =  teamList.getCellBounds(0, teamList.getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
+					if (r != null && r.contains(e.getPoint())) {
+						int index = teamList.locationToIndex(e.getPoint());
+						Gvar.listSelected.addElement(listTeam.get(index).toString());
+						listTeam.remove(index);
+						isAlreadySaved = false;
+					}
+				}
+				else if (e.getSource() == teamSelected) {
+					r =  teamList.getCellBounds(0, teamList.getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
+					if (r != null && r.contains(e.getPoint())) {
+						int index = teamSelected.locationToIndex(e.getPoint());
+						listTeam.addElement(Gvar.listSelected.get(index).toString());
+						Gvar.listSelected.remove(index);
+						isAlreadySaved = false;
+					}
+				}
 			}
-			else if (e.getSource() == teamSelected) {
-				int index = teamSelected.locationToIndex(e.getPoint());
-				listTeam.addElement(listSelected.get(index).toString());
-				listSelected.remove(index);
-			}
-		}
+		/*}*/
     }
 
 	@Override
@@ -188,5 +212,61 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private void parseTxtFile() {
+		File f = new File("./" + Gvar.FILE_NAME_TEAM_SELECTED);
+		if(f.exists() && !f.isDirectory()) {
+			String Line;
+			int i = 0;
+			BufferedReader Buffer;
+			try {
+				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
+				while((Line = Buffer.readLine()) != null) {
+					if (Line != "" && !isDoublon(Line)) {
+						Gvar.listSelected.add(i, Line);
+						i++;
+					}
+				}
+				Buffer.close();
+			} catch (IOException e) { } 
+			
+		}
+	}
+	
+	private boolean isDoublon(String StrToCheck) {
+		int i = 0;
+		while (i < Gvar.listSelected.getSize()) {
+			if (StrToCheck.equals(Gvar.listSelected.get(i).toString()))
+				return true;
+			i++;
+		}
+		return false;
+	}
+	
+	public void setListTeam() {
+		listTeam.clear();
+		for (int i = 0; i < Gvar.listData.getSize(); i++) {
+			if (!isDoublonFromSelected(Gvar.listData.getElementAt(i).toString()))
+				listTeam.addElement(Gvar.listData.getElementAt(i).toString());
+		}
+	}
+	
+	private boolean isDoublonFromSelected(String StrToCheck) {
+		int i = 0;
+		while (i < Gvar.listSelected.getSize()) {
+			if (StrToCheck.equals(Gvar.listSelected.get(i).toString()))
+				return true;
+			i++;
+		}
+		return false;
+	}
+	
+	public DefaultListModel<String> getlistSelected() {
+		return Gvar.listSelected;
+	}
+	
+	public boolean getIsAlreadySaved() {
+		return isAlreadySaved;
 	}
 }

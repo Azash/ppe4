@@ -54,6 +54,7 @@ public class Menu extends JPanel implements ActionListener {
 			Main.fen.setTitle(Gvar.CUR_PAN);
 		}
 		else if (e.getSource() == butLoadManagePoules) {
+			Main.fen.getPanManagePoules().setPoules();
 			Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_ManagePoules);
 			Gvar.CUR_PAN = Gvar.BUT_STR_LOAD_ManagePoules;
 			Main.fen.setTitle(Gvar.CUR_PAN);

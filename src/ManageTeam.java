@@ -13,7 +13,6 @@ import java.io.UnsupportedEncodingException;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -32,7 +31,7 @@ import javax.swing.ListSelectionModel;
 	private JButton butLoadClose;
 	private JButton butSave;
 	private JTextField textBox;
-	private JList teamList;
+	private JList<String> teamList;
 	private boolean isAlreadySaved = true; // Est ce que la liste des équipes a subie une modification ? 
 	private boolean isRemoved = false;
 	
@@ -55,7 +54,7 @@ import javax.swing.ListSelectionModel;
 		this.add(butAddTeam);
 			
 		//Initialisation de la listbox affichant les équipes
-		teamList = new JList(Gvar.listData);
+		teamList = new JList<String>(Gvar.listData);
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
 		scrollTeamList = new JScrollPane();
@@ -187,7 +186,7 @@ import javax.swing.ListSelectionModel;
 	private boolean isDoublon(String StrToCheck) {
 		int i = 0;
 		while (i < Gvar.listData.getSize()) {
-			if (StrToCheck.contains(Gvar.listData.get(i).toString()))
+			if (StrToCheck.equals(Gvar.listData.get(i).toString()))
 				return true;
 			i++;
 		}
