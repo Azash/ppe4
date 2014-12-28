@@ -3,7 +3,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +18,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 //import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -26,90 +26,68 @@ import javax.swing.ListSelectionModel;
 
 public class ManageSelection extends JPanel implements ActionListener, ListSelectionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
-	private JButton butLoadMenu;
-	private JButton butSelectTeam;
-	private JButton butUnselectTeam;
-	private JButton butLoadClose;
-	private JButton butSave;
-	private JScrollPane scrollTeamList;
-	private JScrollPane scrollTeamSelected;
-	private JList<String> teamList;
-	private JList<String> teamSelected;
-	private JLabel labTeamList;
-	private JLabel labTeamSelected;
 	private DefaultListModel<String> listTeam = new DefaultListModel<String>();
-	//public DefaultListModel<String> listSelected = new DefaultListModel<String>();
+	private JButton butSelectTeam = new JButton(">");
+	private JButton butUnselectTeam = new JButton("<");
+	private JButton butSave = new JButton("Sauver");
+	private JScrollPane scrollTeamList = new JScrollPane();
+	private JScrollPane scrollTeamSelected = new JScrollPane();
+	private JList<String> teamList = new JList<String>(listTeam);
+	private JList<String> teamSelected = new JList<String>(Gvar.listSelected);
+	private JLabel labTeamList = new JLabel("Liste des équipes disponibles :");
+	private JLabel labTeamSelected = new JLabel("Liste des équipes sélèctionnées :");
 	private int idSelected = -1;
 	private int idTeam = -1;
 	private boolean isAlreadySaved = true;
+	private boolean ThereIsDoublon = false;
+	private boolean ThereIsColon = false;
 	
 	public ManageSelection() {
 		this.setLayout(null);
 		
 		//Initialisation du label equipes dispos
-		labTeamList = new JLabel("Liste des équipes disponibles :");
-		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.FEN_WIDTH - ((4 * Gvar.MARGE) + 20)) / 2 - Gvar.MARGE, Gvar.LAB_HEIGHT);
+		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.ONG_WIDTH - ((4 * Gvar.MARGE) + 50)) / 2, Gvar.LAB_HEIGHT);
 		this.add(labTeamList);
 		
 		//Initialisation de la listbox affichant les équipes
-		teamList = new JList<String>(listTeam);
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamList.addMouseListener(this);
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
-		scrollTeamList = new JScrollPane();
 		scrollTeamList.setViewportView(teamList);
-		scrollTeamList.setBounds(Gvar.MARGE, labTeamList.getY() + labTeamList.getHeight() /*+ Gvar.MARGE*/, labTeamList.getWidth(), Gvar.FEN_HEIGHT - (Gvar.FOOTER_HEIGHT + (2 * Gvar.MARGE) + labTeamList.getHeight()));
+		scrollTeamList.setBounds(Gvar.MARGE, labTeamList.getY() + labTeamList.getHeight(), labTeamList.getWidth(), Gvar.ONG_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.ONG_HEADER_HEIGHT + labTeamList.getHeight()));
 		this.add(scrollTeamList);
 		
 		//Initialisation du bouton d'ajout a la liste des equipes selectionnee
-		butSelectTeam = new JButton(">");
 		butSelectTeam.addActionListener(this);
-		butSelectTeam.setBounds(scrollTeamList.getX() + scrollTeamList.getWidth() + Gvar.MARGE, scrollTeamList.getY(), 50, Gvar.BUT_HEIGHT);
+		butSelectTeam.setBounds(scrollTeamList.getX() + scrollTeamList.getWidth() + Gvar.MARGE, scrollTeamList.getY(), Gvar.BUT_SQUARE_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butSelectTeam);
 		
 		//Initialisation du bouton de suppression de la liste des equipes selectionnee
-		butUnselectTeam = new JButton("<");
 		butUnselectTeam.addActionListener(this);
 		butUnselectTeam.setBounds(butSelectTeam.getX(), butSelectTeam.getY() + butSelectTeam.getHeight() + Gvar.MARGE, butSelectTeam.getWidth(), butSelectTeam.getHeight());
 		this.add(butUnselectTeam);
 		
 		//Initialisation du label equipes selectionnees
-		labTeamSelected = new JLabel("Liste des équipes sélèctionnées :");
 		labTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, labTeamList.getWidth(), labTeamList.getHeight());
 		this.add(labTeamSelected);
 		
 		//Initialisation de la listbox affichant les équipes SELECTIONNEES
-		teamSelected = new JList<String>(Gvar.listSelected);
 		teamSelected.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		teamSelected.addMouseListener(this);
 		teamSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
-		scrollTeamSelected = new JScrollPane();
 		scrollTeamSelected.setViewportView(teamSelected);
 		scrollTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, scrollTeamList.getY(), labTeamSelected.getWidth(), scrollTeamList.getHeight());
 		this.add(scrollTeamSelected);
 
-//-----------------------------------------------------------------------------------------
-//ZONE A COPIER/COLLER POUR METTRE LES BOUTONS Menu ET Fermer DANS UN PANEL (Ne pas oublier le code dans actionPerformed et  de creer les 2 variables : JButton butLoadMenu, JButton butLoadClose)
-//-----------------------------------------------------------------------------------------
-		//Initialisation du bouton pour revenir au menu
-		butLoadMenu = new JButton(Gvar.BUT_STR_LOAD_Menu);
-		butLoadMenu.addActionListener(this);
-		butLoadMenu.setBounds(Gvar.MARGE, Gvar.FEN_HEIGHT - Gvar.FOOTER_HEIGHT, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		this.add(butLoadMenu);
-		
-		//Initialisation du bouton pour quitter le programme
-		butLoadClose = new JButton(Gvar.BUT_STR_LOAD_Close);
-		butLoadClose.addActionListener(this);
-		butLoadClose.setBounds(butLoadMenu.getX() + butLoadMenu.getWidth() + Gvar.MARGE, butLoadMenu.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		this.add(butLoadClose);
-//-----------------------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-		butSave = new JButton("Sauver");
 		butSave.addActionListener(this);
-		butSave.setBounds(butLoadClose.getX() + butLoadClose.getWidth() + Gvar.MARGE, butLoadMenu.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		butSave.setBounds(Gvar.MARGE, scrollTeamSelected.getY() + scrollTeamSelected.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butSave);
 		
 		parseTxtFile(); // Si le fichier ListeDesEquipesSelectionnees.txt existe déjà je l'importe
+		if (ThereIsDoublon)
+			JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM_SELECTED + " altéré", JOptionPane.ERROR_MESSAGE);
+		if (ThereIsColon)
+			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM_SELECTED + " altéré", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	//Declenché lorsque un bouton est cliqué
@@ -127,28 +105,8 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 			idSelected = -1;
 			isAlreadySaved = false;
 		}
-		else if (e.getSource() == butSave && Gvar.listSelected.getSize() > 0) {
-			PrintWriter writer = null;
-			try {
-				writer = new PrintWriter(Gvar.FILE_NAME_TEAM_SELECTED, "UTF-8");
-			} catch (FileNotFoundException | UnsupportedEncodingException e1) {
-				e1.printStackTrace();
-			}
-			if (!writer.equals(null)) {
-				for(int i = 0; i < Gvar.listSelected.getSize(); i++)
-					writer.println(Gvar.listSelected.get(i).toString());
-				writer.close();
-				isAlreadySaved = true;
-			}
-		}
-		else if (e.getSource() == butLoadMenu) {
-			Main.fen.getCl().show(Main.fen.getGlobalPan(), Gvar.BUT_STR_LOAD_Menu);
-			Gvar.CUR_PAN = Gvar.BUT_STR_LOAD_Menu;
-			Main.fen.setTitle(Gvar.CUR_PAN);
-		}
-		else if (e.getSource() == butLoadClose) {
-			Main.fen.dispatchEvent(new WindowEvent(Main.fen, WindowEvent.WINDOW_CLOSING));
-		}
+		else if (e.getSource() == butSave && Gvar.listSelected.getSize() > 0)
+			saveInTxtFile();
 	}
 	
 	//Declenché lorsque un element different de la liste est selectionné
@@ -214,6 +172,21 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		
 	}
 	
+	public void saveInTxtFile() {
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(Gvar.FILE_NAME_TEAM_SELECTED, "UTF-8");
+		} catch (FileNotFoundException | UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+		if (!writer.equals(null)) {
+			for(int i = 0; i < Gvar.listSelected.getSize(); i++)
+				writer.println(Gvar.listSelected.get(i).toString());
+			writer.close();
+			isAlreadySaved = true;
+		}
+	}
+	
 	private void parseTxtFile() {
 		File f = new File("./" + Gvar.FILE_NAME_TEAM_SELECTED);
 		if(f.exists() && !f.isDirectory()) {
@@ -223,7 +196,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 			try {
 				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
 				while((Line = Buffer.readLine()) != null) {
-					if (Line != "" && !isDoublon(Line)) {
+					if (Line != "" && !(ThereIsDoublon = isDoublon(Line)) && !(ThereIsColon = isColon(Line))) {
 						Gvar.listSelected.add(i, Line);
 						i++;
 					}
@@ -244,22 +217,18 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 		return false;
 	}
 	
+	private boolean isColon(String StrToCheck) {
+		if (StrToCheck.contains(":"))
+			return true;
+		return false;
+	}
+	
 	public void setListTeam() {
 		listTeam.clear();
 		for (int i = 0; i < Gvar.listData.getSize(); i++) {
-			if (!isDoublonFromSelected(Gvar.listData.getElementAt(i).toString()))
+			if (!isDoublon(Gvar.listData.getElementAt(i).toString()))
 				listTeam.addElement(Gvar.listData.getElementAt(i).toString());
 		}
-	}
-	
-	private boolean isDoublonFromSelected(String StrToCheck) {
-		int i = 0;
-		while (i < Gvar.listSelected.getSize()) {
-			if (StrToCheck.equals(Gvar.listSelected.get(i).toString()))
-				return true;
-			i++;
-		}
-		return false;
 	}
 	
 	public DefaultListModel<String> getlistSelected() {

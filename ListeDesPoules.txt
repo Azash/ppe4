@@ -1,29 +1,46 @@
+[Poule 1]
 equipe 1
 equipe 2
 equipe 3
+equipe 28
+
+[Poule 2]
 equipe 4
 equipe 5
 equipe 6
+
+[Poule 3]
 equipe 7
 equipe 8
 equipe 9
+
+[Poule 4]
 equipe 10
 equipe 11
 equipe 12
+
+[Poule 5]
 equipe 13
 equipe 14
 equipe 15
+
+[Poule 6]
 equipe 17
 equipe 18
 equipe 16
+
+[Poule 7]
 equipe 19
 equipe 20
 equipe 21
+
+[Poule 8]
 equipe 22
 equipe 23
 equipe 24
+
+[Poule 9]
 equipe 25
 equipe 26
 equipe 27
-equipe 28
-equipe 29
+
