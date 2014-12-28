@@ -1,3 +1,7 @@
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -6,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-class Fen extends JFrame {
+class Fen extends JFrame implements ComponentListener {
 	private static final long serialVersionUID = 1L;
 	final JFrame Gfen = this;
 	
@@ -19,9 +23,11 @@ class Fen extends JFrame {
 		this.add(GlobalPan); //Ajout du panel global a la fenetre
 		this.setTitle(Gvar.FEN_TITLE);
 		// Je parametre deux trois trucs de la fenetre
-		this.setResizable(false);
+		this.setResizable(true);
 		this.setAlwaysOnTop(true);
-		this.setBounds(700, 200, Gvar.FEN_WIDTH, Gvar.FEN_HEIGHT);
+		this.setSize(Gvar.DEFAULT_FEN_WIDTH, Gvar.DEFAULT_FEN_HEIGHT);
+		this.addComponentListener(this);
+		SetFrameToCenter();
 //----------------------------------------------------------------------------------------------------------------------		
 //---------------------------------------------- DEBUT GESTION DE FERMETURE DE LA FENETRE ------------------------------	
 //----------------------------------------------------------------------------------------------------------------------	
@@ -64,9 +70,11 @@ class Fen extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-//----------------------------------------------------------------------------------------------------------------------	
-//--------------------- ENSEMBLE DE GETTER QUI VONT ME PERMETTRE DE PERMUTER ENTRE LES DIFFERENT PANEL -----------------
-//----------------------------------------------------------------------------------------------------------------------	
+	public void SetFrameToCenter() {
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setLocation((int) ((dimension.getWidth() - this.getWidth()) / 2), (int) ((dimension.getHeight() - this.getHeight()) / 2));
+	}
+	
 	public JPanel getGlobalPan() {
 		return GlobalPan;
 	}
@@ -74,6 +82,36 @@ class Fen extends JFrame {
 	public Onglets getOnglets() {
 		return TabOnglets;
 	}
-	
-//----------------------------------------------------------------------------------------------------------------------	
+
+	@Override
+	public void componentHidden(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+		// TODO Auto-generated method stub
+		Gvar.CURRENT_FEN_WIDTH = this.getWidth();
+		Gvar.CURRENT_FEN_HEIGHT = this.getHeight();
+		Gvar.ONG_WIDTH = Gvar.CURRENT_FEN_WIDTH - 17;
+		Gvar.ONG_HEIGHT = Gvar.CURRENT_FEN_HEIGHT - ((Gvar.ONG_HEADER_HEIGHT - Gvar.MARGE) + 10);
+		TabOnglets.ongletsSetBounds();
+		TabOnglets.getPanManageEliminations().objSetBounds();
+		TabOnglets.getPanManageTeam().objSetBounds();
+		TabOnglets.getPanManageSelection().objSetBounds();
+		TabOnglets.getPanManagePoules().objSetBounds();
+	}
+
+	@Override
+	public void componentShown(ComponentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -44,50 +44,47 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 	
 	public ManageSelection() {
 		this.setLayout(null);
-		
-		//Initialisation du label equipes dispos
-		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.ONG_WIDTH - ((4 * Gvar.MARGE) + 50)) / 2, Gvar.LAB_HEIGHT);
-		this.add(labTeamList);
-		
-		//Initialisation de la listbox affichant les équipes
-		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
-		teamList.addMouseListener(this);
+
+		//Configuration de la listbox affichant les équipes
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
 		scrollTeamList.setViewportView(teamList);
-		scrollTeamList.setBounds(Gvar.MARGE, labTeamList.getY() + labTeamList.getHeight(), labTeamList.getWidth(), Gvar.ONG_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.ONG_HEADER_HEIGHT + labTeamList.getHeight()));
-		this.add(scrollTeamList);
 		
-		//Initialisation du bouton d'ajout a la liste des equipes selectionnee
-		butSelectTeam.addActionListener(this);
-		butSelectTeam.setBounds(scrollTeamList.getX() + scrollTeamList.getWidth() + Gvar.MARGE, scrollTeamList.getY(), Gvar.BUT_SQUARE_WIDTH, Gvar.BUT_HEIGHT);
-		this.add(butSelectTeam);
-		
-		//Initialisation du bouton de suppression de la liste des equipes selectionnee
-		butUnselectTeam.addActionListener(this);
-		butUnselectTeam.setBounds(butSelectTeam.getX(), butSelectTeam.getY() + butSelectTeam.getHeight() + Gvar.MARGE, butSelectTeam.getWidth(), butSelectTeam.getHeight());
-		this.add(butUnselectTeam);
-		
-		//Initialisation du label equipes selectionnees
-		labTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, labTeamList.getWidth(), labTeamList.getHeight());
-		this.add(labTeamSelected);
-		
-		//Initialisation de la listbox affichant les équipes SELECTIONNEES
-		teamSelected.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
-		teamSelected.addMouseListener(this);
+		//Configuration de la listbox affichant les équipes SELECTIONNEES
 		teamSelected.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
 		scrollTeamSelected.setViewportView(teamSelected);
-		scrollTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, scrollTeamList.getY(), labTeamSelected.getWidth(), scrollTeamList.getHeight());
-		this.add(scrollTeamSelected);
-
+		
+		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
+		teamList.addMouseListener(this);
+		butSelectTeam.addActionListener(this);
+		butUnselectTeam.addActionListener(this);
+		teamSelected.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
+		teamSelected.addMouseListener(this);
 		butSave.addActionListener(this);
-		butSave.setBounds(Gvar.MARGE, scrollTeamSelected.getY() + scrollTeamSelected.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		
+		this.add(labTeamList);
+		this.add(scrollTeamList);
+		this.add(butSelectTeam);
+		this.add(butUnselectTeam);
+		this.add(labTeamSelected);
+		this.add(scrollTeamSelected);
 		this.add(butSave);
 		
+		objSetBounds(); //Positionne les objets dans le panel
 		parseTxtFile(); // Si le fichier ListeDesEquipesSelectionnees.txt existe déjà je l'importe
 		if (ThereIsDoublon)
 			JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM_SELECTED + " altéré", JOptionPane.ERROR_MESSAGE);
 		if (ThereIsColon)
 			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM_SELECTED + " altéré", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public void objSetBounds() {
+		labTeamList.setBounds(Gvar.MARGE, Gvar.MARGE, (Gvar.ONG_WIDTH - ((4 * Gvar.MARGE) + 50)) / 2, Gvar.LAB_HEIGHT);
+		scrollTeamList.setBounds(Gvar.MARGE, labTeamList.getY() + labTeamList.getHeight(), labTeamList.getWidth(), Gvar.ONG_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.ONG_HEADER_HEIGHT + labTeamList.getHeight()));
+		butSelectTeam.setBounds(scrollTeamList.getX() + scrollTeamList.getWidth() + Gvar.MARGE, scrollTeamList.getY(), Gvar.BUT_SQUARE_WIDTH, Gvar.BUT_HEIGHT);
+		butUnselectTeam.setBounds(butSelectTeam.getX(), butSelectTeam.getY() + butSelectTeam.getHeight() + Gvar.MARGE, butSelectTeam.getWidth(), butSelectTeam.getHeight());
+		labTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, labTeamList.getWidth(), labTeamList.getHeight());
+		scrollTeamSelected.setBounds(butSelectTeam.getX() + butSelectTeam.getWidth() + Gvar.MARGE, scrollTeamList.getY(), labTeamSelected.getWidth(), scrollTeamList.getHeight());
+		butSave.setBounds(Gvar.MARGE, scrollTeamSelected.getY() + scrollTeamSelected.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 	}
 	
 	public void saveInTxtFile() {

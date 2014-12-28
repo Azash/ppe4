@@ -39,38 +39,39 @@ import javax.swing.ListSelectionModel;
 	
 	public ManageTeam() {
 		this.setLayout(null);
-		//Initialisation de la zone de saisie
-		textBox.addActionListener(this);
-		textBox.setBounds(Gvar.MARGE, Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		this.add(textBox);
 		
-		//Initialisation du bouton d'ajout d'équipe
-		butAddTeam.addActionListener(this);
-		butAddTeam.setBounds(Gvar.MARGE, textBox.getY() + textBox.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		this.add(butAddTeam);
-			
-		//Initialisation de la listbox affichant les équipes
-		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
+		//Configuration de la listbox affichant les équipes
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
 		scrollTeamList.setViewportView(teamList);
-		scrollTeamList.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, Gvar.ONG_WIDTH - (butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE) - Gvar.MARGE, Gvar.ONG_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.ONG_HEADER_HEIGHT));
-		this.add(scrollTeamList);
 		
-		//Initialisation du bouton de suppression d'équipe
+		textBox.addActionListener(this);
+		butAddTeam.addActionListener(this);
+		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged
 		butDelTeam.addActionListener(this);
-		butDelTeam.setBounds(scrollTeamList.getX(), scrollTeamList.getY() + scrollTeamList.getHeight() + Gvar.MARGE, scrollTeamList.getWidth(), Gvar.BUT_HEIGHT);
-		this.add(butDelTeam);
-		
-		//Initialisation bouton sauver
 		butSave.addActionListener(this);
-		butSave.setBounds(Gvar.MARGE, butAddTeam.getY() + butAddTeam.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		
+		this.add(textBox);
+		this.add(butAddTeam);
+		this.add(scrollTeamList);
+		this.add(butDelTeam);
 		this.add(butSave);
+		
+		objSetBounds();//Positionne les objets dans le panel
 		
 		parseTxtFile(); // Si le fichier ListeDesEquipes.txt existe déjà je l'importe
 		if (ThereIsDoublon)
 			JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM + " altéré", JOptionPane.ERROR_MESSAGE);
 		if (ThereIsColon)
 			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM + " altéré", JOptionPane.ERROR_MESSAGE);
+	}
+	
+	public void objSetBounds() {
+		textBox.setBounds(Gvar.MARGE, Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		butAddTeam.setBounds(Gvar.MARGE, textBox.getY() + textBox.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		scrollTeamList.setBounds(butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE, Gvar.MARGE, Gvar.ONG_WIDTH - (butAddTeam.getX() + butAddTeam.getWidth() + Gvar.MARGE) - Gvar.MARGE, Gvar.ONG_HEIGHT - ((3 * Gvar.MARGE) + Gvar.BUT_HEIGHT + Gvar.ONG_HEADER_HEIGHT));
+		butDelTeam.setBounds(scrollTeamList.getX(), scrollTeamList.getY() + scrollTeamList.getHeight() + Gvar.MARGE, scrollTeamList.getWidth(), Gvar.BUT_HEIGHT);
+		butSave.setBounds(Gvar.MARGE, butAddTeam.getY() + butAddTeam.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		
 	}
 	
 	/*public void paintComponent(Graphics g) {
