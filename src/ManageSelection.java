@@ -90,6 +90,77 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_TEAM_SELECTED + " altéré", JOptionPane.ERROR_MESSAGE);
 	}
 	
+	public void saveInTxtFile() {
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(Gvar.FILE_NAME_TEAM_SELECTED, "UTF-8");
+		} catch (FileNotFoundException | UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+		if (!writer.equals(null)) {
+			for(int i = 0; i < Gvar.listSelected.getSize(); i++)
+				writer.println(Gvar.listSelected.get(i).toString());
+			writer.close();
+			isAlreadySaved = true;
+		}
+	}
+	
+	private void parseTxtFile() {
+		File f = new File("./" + Gvar.FILE_NAME_TEAM_SELECTED);
+		if(f.exists() && !f.isDirectory()) {
+			String Line;
+			int i = 0;
+			BufferedReader Buffer;
+			try {
+				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
+				while((Line = Buffer.readLine()) != null) {
+					if (!Line.isEmpty() && !isDoublon(Line) && !isColon(Line)) {
+						Gvar.listSelected.add(i, Line);
+						i++;
+					}
+				}
+				Buffer.close();
+			} catch (IOException e) { } 
+			
+		}
+	}
+	
+	private boolean isDoublon(String StrToCheck) {
+		int i = 0;
+		while (i < Gvar.listSelected.getSize()) {
+			if (StrToCheck.equals(Gvar.listSelected.get(i).toString())) {
+				ThereIsDoublon = true;
+				return true;
+			}
+			i++;
+		}
+		return false;
+	}
+	
+	private boolean isColon(String StrToCheck) {
+		if (StrToCheck.contains(":")) {
+			ThereIsColon = true;
+			return true;
+		}
+		return false;
+	}
+	
+	public void setListTeam() {
+		listTeam.clear();
+		for (int i = 0; i < Gvar.listData.getSize(); i++) {
+			if (!isDoublon(Gvar.listData.getElementAt(i).toString()))
+				listTeam.addElement(Gvar.listData.getElementAt(i).toString());
+		}
+	}
+	
+	public DefaultListModel<String> getlistSelected() {
+		return Gvar.listSelected;
+	}
+	
+	public boolean getIsAlreadySaved() {
+		return isAlreadySaved;
+	}
+	
 	//Declenché lorsque un bouton est cliqué
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -170,72 +241,5 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public void saveInTxtFile() {
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(Gvar.FILE_NAME_TEAM_SELECTED, "UTF-8");
-		} catch (FileNotFoundException | UnsupportedEncodingException e1) {
-			e1.printStackTrace();
-		}
-		if (!writer.equals(null)) {
-			for(int i = 0; i < Gvar.listSelected.getSize(); i++)
-				writer.println(Gvar.listSelected.get(i).toString());
-			writer.close();
-			isAlreadySaved = true;
-		}
-	}
-	
-	private void parseTxtFile() {
-		File f = new File("./" + Gvar.FILE_NAME_TEAM_SELECTED);
-		if(f.exists() && !f.isDirectory()) {
-			String Line;
-			int i = 0;
-			BufferedReader Buffer;
-			try {
-				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
-				while((Line = Buffer.readLine()) != null) {
-					if (Line != "" && !(ThereIsDoublon = isDoublon(Line)) && !(ThereIsColon = isColon(Line))) {
-						Gvar.listSelected.add(i, Line);
-						i++;
-					}
-				}
-				Buffer.close();
-			} catch (IOException e) { } 
-			
-		}
-	}
-	
-	private boolean isDoublon(String StrToCheck) {
-		int i = 0;
-		while (i < Gvar.listSelected.getSize()) {
-			if (StrToCheck.equals(Gvar.listSelected.get(i).toString()))
-				return true;
-			i++;
-		}
-		return false;
-	}
-	
-	private boolean isColon(String StrToCheck) {
-		if (StrToCheck.contains(":"))
-			return true;
-		return false;
-	}
-	
-	public void setListTeam() {
-		listTeam.clear();
-		for (int i = 0; i < Gvar.listData.getSize(); i++) {
-			if (!isDoublon(Gvar.listData.getElementAt(i).toString()))
-				listTeam.addElement(Gvar.listData.getElementAt(i).toString());
-		}
-	}
-	
-	public DefaultListModel<String> getlistSelected() {
-		return Gvar.listSelected;
-	}
-	
-	public boolean getIsAlreadySaved() {
-		return isAlreadySaved;
 	}
 }

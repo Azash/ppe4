@@ -150,7 +150,7 @@ import javax.swing.ListSelectionModel;
 			try {
 				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
 				while((Line = Buffer.readLine()) != null) {
-					if (Line != "" && !(ThereIsDoublon = isDoublon(Line)) && !(ThereIsColon = isColon(Line))) {
+					if (!Line.isEmpty() && !isDoublon(Line) && !isColon(Line)) {
 						Gvar.listData.add(i, Line);
 						i++;
 					}
@@ -164,16 +164,20 @@ import javax.swing.ListSelectionModel;
 	private boolean isDoublon(String StrToCheck) {
 		int i = 0;
 		while (i < Gvar.listData.getSize()) {
-			if (StrToCheck.equals(Gvar.listData.get(i).toString()))
+			if (StrToCheck.equals(Gvar.listData.get(i).toString())) {
+				ThereIsDoublon = true;
 				return true;
+			}
 			i++;
 		}
 		return false;
 	}
 	
 	private boolean isColon(String StrToCheck) {
-		if (StrToCheck.contains(":"))
+		if (StrToCheck.contains(":")) {
+			ThereIsColon = true;
 			return true;
+		}
 		return false;
 	}
 	

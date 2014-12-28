@@ -2,11 +2,15 @@
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -33,16 +37,17 @@ import javax.swing.ListSelectionModel;
 	private DefaultListModel<String> ListTeamSelected = new DefaultListModel<String>();
 	
 	private JLabel LabSelectionCob = new JLabel("Nombre d'équipes par poules : ");
-	private JLabel LabSelectionNotMultipleOfPoule = new JLabel("");
 	private DefaultComboBoxModel<String> ListNbrTeampByPoule = new DefaultComboBoxModel<String>();
 	private JComboBox<String> cobListNbrTeampByPoule = new JComboBox<String>(ListNbrTeampByPoule);
-	private Random ObjRandom = new Random();
+	//private Random ObjRandom = new Random();
 	
 	private JPanel PoulesContainer = new JPanel();
 	private JScrollPane SPoulesContainer = new JScrollPane(PoulesContainer);
 	private JButton butSave = new JButton("Sauver");
-	
+	private JButton butGeneratePoules = new JButton("Générer");
 	private boolean isAlreadySaved = true;
+	private boolean ThereIsDoublon = false;
+	private boolean ThereIsColon = false;
 	
 	public ManagePoules() {
 		this.setLayout(null);
@@ -57,12 +62,13 @@ import javax.swing.ListSelectionModel;
 		cobListNbrTeampByPoule.setBounds(Gvar.MARGE, LabSelectionCob.getY() + LabSelectionCob.getHeight(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(cobListNbrTeampByPoule);
 		
-		LabSelectionNotMultipleOfPoule.setBounds(cobListNbrTeampByPoule.getX() + cobListNbrTeampByPoule.getWidth() + Gvar.MARGE, cobListNbrTeampByPoule.getY(), Gvar.BUT_WIDTH + 400, 50);
-		this.add(LabSelectionNotMultipleOfPoule);
+		butGeneratePoules.setBounds(cobListNbrTeampByPoule.getX() + cobListNbrTeampByPoule.getWidth() + Gvar.MARGE, cobListNbrTeampByPoule.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		butGeneratePoules.addActionListener(this);
+		this.add(butGeneratePoules);
 		
 		PoulesContainer.setLayout(null);
 		SPoulesContainer.setViewportView(PoulesContainer);
-		//SPoulesContainer.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		//SPoulesContainer.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		SPoulesContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		SPoulesContainer.setBounds(0, cobListNbrTeampByPoule.getY() + cobListNbrTeampByPoule.getHeight() + Gvar.MARGE, Gvar.ONG_WIDTH - 4, Gvar.ONG_HEIGHT - ((4*Gvar.MARGE) + (2*Gvar.BUT_HEIGHT) + (Gvar.LAB_HEIGHT) + Gvar.ONG_HEADER_HEIGHT));
 		this.add(SPoulesContainer);
@@ -70,6 +76,13 @@ import javax.swing.ListSelectionModel;
 		butSave.addActionListener(this);
 		butSave.setBounds(Gvar.MARGE, SPoulesContainer.getY() + SPoulesContainer.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 		this.add(butSave);
+		
+		parseTxtFile();
+		
+		if (ThereIsDoublon)
+			JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
+		if (ThereIsColon)
+			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	public void setPoules() {
@@ -92,12 +105,8 @@ import javax.swing.ListSelectionModel;
 			int CobValue = Integer.parseInt(cobListNbrTeampByPoule.getSelectedItem().toString());
 			double CheckNbrPoules = (double)ListTeamSelected.size() / (double)CobValue;
 			int NbrPoules = (int)CheckNbrPoules;
-			//JOptionPane.showMessageDialog(this, CheckNbrPoules + " - " + NbrPoules + " = " + ((double)CheckNbrPoules - (double)NbrPoules));
-			//if ((double)CheckNbrPoules - (double)NbrPoules >= 0.5)
-			//	NbrPoules++;
-			//JOptionPane.showMessageDialog(this, NbrPoules);
 			for (int i = 1; i <= NbrPoules; i++) {
-				CreatePoule(i, X, Y, CobValue);
+				CreatePoule(i, X, Y, CobValue, DefineListCurrentPoule(CobValue));
 				PoulesContainer.add(LabPoules.get(i - 1));
 				PoulesContainer.add(ScrollListPoules.get(i - 1));
 				PoulesContainer.add(ButPoules.get(i - 1));
@@ -111,12 +120,8 @@ import javax.swing.ListSelectionModel;
 			}
 			if ((double)CheckNbrPoules - (double)NbrPoules > 0)
 				addTheRest(NbrPoules + 1, X, Y, CobValue);
-			if (Gvar.listSelected.size() % CobValue != 0)
-				LabSelectionNotMultipleOfPoule.setText("<html>Le nombre d'equipes par poule selectionné n'est pas un multiple du nombre total d'equipes.<br />Du coup ont a fait au mieux...</html>");
-			else
-				LabSelectionNotMultipleOfPoule.setText("");
 			if (NbrPoules > 0)
-				PoulesContainer.setPreferredSize(new Dimension(800, ButPoules.get(ButPoules.size() - 1).getY() + ButPoules.get(ButPoules.size() - 1).getHeight() + 4));
+				PoulesContainer.setPreferredSize(new Dimension(Gvar.FEN_WIDTH, ButPoules.get(ButPoules.size() - 1).getY() + ButPoules.get(ButPoules.size() - 1).getHeight() + 1));
 			this.validate();
 			this.repaint();
 		}
@@ -124,7 +129,7 @@ import javax.swing.ListSelectionModel;
 	
 	private void addTheRest(int i, int X, int Y, int NbrTeam) {
 		if ((ListTeamSelected.size()) > (double)NbrTeam / 2.0 && ListTeamSelected.size() >= 3) {
-			CreatePoule(i, X, Y, NbrTeam);
+			CreatePoule(i, X, Y, NbrTeam, DefineListCurrentPoule(NbrTeam));
 			PoulesContainer.add(LabPoules.get(i - 1));
 			PoulesContainer.add(ScrollListPoules.get(i - 1));
 			PoulesContainer.add(ButPoules.get(i - 1));
@@ -137,10 +142,10 @@ import javax.swing.ListSelectionModel;
 			}
 		}
 		else {
-			int RandomPos = 0;
+			//int RandomPos = 0;
 			int j = 0;
 			while (ListTeamSelected.size() > 0) {
-				RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
+				//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
 				ListTeam.get(j).addElement(ListTeamSelected.getElementAt(0));
 				ListTeamSelected.remove(0);
 				j++;
@@ -149,12 +154,10 @@ import javax.swing.ListSelectionModel;
 			
 	}
 	
-	private void CreatePoule(int Num, int X, int Y, int NbrTeam) {
+	private void CreatePoule(int Num, int X, int Y, int NbrTeam, DefaultListModel<String> TmpList) {
 		JLabel NewLab = new JLabel("Poule " + Num);
 		NewLab.setBounds(X, Y, Gvar.POULE_WIDTH, Gvar.LAB_HEIGHT);
 		LabPoules.add(NewLab);
-		
-		DefaultListModel<String> TmpList = DefineListCurrentPoule(NbrTeam); 
 		
 		ListTeam.add(TmpList);
 		JList<String> NewList = new JList<String>(TmpList);
@@ -181,10 +184,10 @@ import javax.swing.ListSelectionModel;
 	
 	private DefaultListModel<String> DefineListCurrentPoule(int NbrTeam) {
 		DefaultListModel<String> TmpListPoule = new DefaultListModel<String>();
-		int RandomPos = 0;
+		//int RandomPos = 0; // On verra quand on sera sur que ca fonctionne, pour le moment ca me permet d'etre sur qu'il prend bien toutes les equipe que je selectionne
 		int i = 0;
 		while (i < NbrTeam && ListTeamSelected.size() > 0) {
-			RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
+			//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
 			TmpListPoule.addElement(ListTeamSelected.getElementAt(0));
 			ListTeamSelected.remove(0);
 			i++;
@@ -217,14 +220,122 @@ import javax.swing.ListSelectionModel;
 		}
 	}
 	
+	//Fonction a simplifier sinon je vomis (sutout que c'est presque le copier colle de setPoules
+	private void parseTxtFile() {
+		File f = new File("./" + Gvar.FILE_NAME_POULES);
+		if(f.exists() && !f.isDirectory()) {
+			for (int i = 0; i < LabPoules.size(); i++) {
+				PoulesContainer.remove(LabPoules.get(i));
+				PoulesContainer.remove(ButPoules.get(i));
+				PoulesContainer.remove(ScrollListPoules.get(i));
+			}
+			LabPoules.clear();
+			ButPoules.clear();
+			ScrollListPoules.clear();
+			ListTeam.clear();
+			ListPoules.clear();
+			ListTeamSelected.clear();
+			
+			String Line;
+			int i = 0;
+			BufferedReader Buffer;
+			ArrayList<DefaultListModel<String>> TmpArray = new ArrayList<DefaultListModel<String>>();
+			int X = Gvar.MARGE;
+			int Y = 0;
+			int RankSetted = 0;
+			try {
+				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
+				while((Line = Buffer.readLine()) != null) {
+					if (!Line.isEmpty() && Line.contains("[Poule ")) {
+						if (TmpArray.size() > 0) {
+							CreatePoule(i, X, Y, 0, TmpArray.get(i - 1));
+							PoulesContainer.add(LabPoules.get(i - 1));
+							PoulesContainer.add(ScrollListPoules.get(i - 1));
+							PoulesContainer.add(ButPoules.get(i - 1));
+							if (i % 4 == 0) {
+								X = Gvar.MARGE;
+								Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
+							}
+							else {
+								X += Gvar.MARGE + Gvar.POULE_WIDTH;
+							}
+							if (RankSetted == 1)
+								ButPoules.get(i - 1).setText("Cliquez sur le 2ème");
+							else if (RankSetted == 2)
+								ButPoules.get(i - 1).setText("Initaliser");
+						}
+						TmpArray.add(new DefaultListModel<String>());
+						RankSetted = 0;
+						i++;
+					}
+					else if (!Line.isEmpty() && TmpArray.size() > 0) {
+						if (!isDoublon(Line, ListTeamSelected) /*&& !isColon(Line)*/) {
+							TmpArray.get(i - 1).addElement(Line);
+							ListTeamSelected.addElement(Line);
+							if (Line.contains("1 : ") && RankSetted == 0)
+								RankSetted = 1;
+							else if (Line.contains("2 : "))
+								RankSetted = 2;
+						}
+					}
+				}
+				if (TmpArray.size() > 0) {
+					CreatePoule(i, X, Y, 0, TmpArray.get(i - 1));
+					PoulesContainer.add(LabPoules.get(i - 1));
+					PoulesContainer.add(ScrollListPoules.get(i - 1));
+					PoulesContainer.add(ButPoules.get(i - 1));
+					if (i % 4 == 0) {
+						X = Gvar.MARGE;
+						Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
+					}
+					else {
+						X += Gvar.MARGE + Gvar.POULE_WIDTH;
+					}
+					if (RankSetted == 1)
+						ButPoules.get(i - 1).setText("Cliquez sur le 2ème");
+					else if (RankSetted == 2)
+						ButPoules.get(i - 1).setText("Initaliser");
+					PoulesContainer.setPreferredSize(new Dimension(Gvar.FEN_WIDTH, ButPoules.get(ButPoules.size() - 1).getY() + ButPoules.get(ButPoules.size() - 1).getHeight() + 1));
+					this.validate();
+					this.repaint();
+				}
+				Buffer.close();
+			} catch (IOException e) { } 
+			
+		}
+	}
+	
+	private boolean isDoublon(String StrToCheck, DefaultListModel<String> ListToCheck) {
+		int i = 0;
+		while (i <ListToCheck.size()) {
+			if (StrToCheck.equals(ListToCheck.getElementAt(i).toString())) {
+				ThereIsDoublon = true;
+				return true;
+			}
+			i++;
+		}
+		return false;
+	}
+	
+	/*private boolean isColon(String StrToCheck) {
+		if (StrToCheck.contains(":")) {
+			ThereIsColon = true;
+			return true;
+		}
+		return false;
+	}*/
+	
 	//Declenché lorsque un bouton est cliqué
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cobListNbrTeampByPoule) {
-			setPoules();
+			//setPoules();
 		}
 		else if (e.getSource() == butSave && ListTeam.size() > 0) {
 			saveInTxtFile();
+		}
+		else if (e.getSource() == butGeneratePoules) {
+			setPoules();
 		}
 		else {
 			int i = 0;
@@ -266,11 +377,13 @@ import javax.swing.ListSelectionModel;
 					ButPoules.get(i).setText("Cliquez sur le 2ème");
 					ListTeam.get(i).set(ListPoules.get(i).getSelectedIndex(), "1 : " + ListPoules.get(i).getSelectedValue());
 					ListPoules.get(i).clearSelection();
+					isAlreadySaved = false;
 				}
 				else if (ButPoules.get(i).getText().toString().equals("Cliquez sur le 2ème") && !ListPoules.get(i).getSelectedValue().toString().contains("1 : ")) {
 					ButPoules.get(i).setText("Initaliser");
 					ListTeam.get(i).set(ListPoules.get(i).getSelectedIndex(), "2 : " + ListPoules.get(i).getSelectedValue());
 					ListPoules.get(i).clearSelection();
+					isAlreadySaved = false;
 				}
 			}
 		}

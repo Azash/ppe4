@@ -55,7 +55,7 @@ class Fen extends JFrame {
 			                "Save Confirmation", JOptionPane.YES_NO_OPTION,
 			                JOptionPane.QUESTION_MESSAGE, null, null, null);
 			        if (confirm == JOptionPane.YES_OPTION)
-			        	TabOnglets.getPanManageSelection().saveInTxtFile();
+			        	TabOnglets.getPanManagePoules().saveInTxtFile();
 		    	}
 		    }
 		};		
