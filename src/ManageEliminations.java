@@ -2,215 +2,100 @@
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
 
 
- class ManageEliminations extends JPanel implements ActionListener, ListSelectionListener {
+ class ManageEliminations extends JPanel implements ActionListener{
 	private static final long serialVersionUID = 1L;
-	private ArrayList<JLabel> LabPoules = new ArrayList<JLabel>();
-	private ArrayList<JList<String>> ListPoules = new ArrayList<JList<String>>();
-	private ArrayList<DefaultListModel<String>> ListTeam = new ArrayList<DefaultListModel<String>>();
-	private ArrayList<JScrollPane> ScrollListPoules = new ArrayList<JScrollPane>();
-	private ArrayList<JButton> ButPoules = new ArrayList<JButton>();
-	
-	private DefaultListModel<String> ListTeamSelected = new DefaultListModel<String>();
-	
-	private JLabel LabSelectionCob = new JLabel("Nombre d'équipes par poules : ");
-	private DefaultComboBoxModel<String> ListNbrTeampByPoule = new DefaultComboBoxModel<String>();
-	private JComboBox<String> cobListNbrTeampByPoule = new JComboBox<String>(ListNbrTeampByPoule);
-	//private Random ObjRandom = new Random();
-	
-	private JPanel PoulesContainer = new JPanel();
-	private JScrollPane SPoulesContainer = new JScrollPane(PoulesContainer);
+	//private Random ObjRandom = new Random();--------------------------------
+
+	private DefaultListModel<String> QualifiedList = new DefaultListModel<String>();
+	private JLayeredPane PanElimination = new JLayeredPane();
+	private JScrollPane SEliminationContainer = new JScrollPane(PanElimination);
 	private JButton butSave = new JButton("Sauver");
-	private JButton butGeneratePoules = new JButton("Générer");
-	private boolean isAlreadySaved = true;
-	private boolean ThereIsDoublon = false;
-	private boolean ThereIsColon = false;
+	private ArrayList<Integer> SpaceSeparatorHeight = new ArrayList<Integer>();
+	private ArrayList<JButton> ListButTeam = new ArrayList<JButton>();
+	private ArrayList<JLabel> ListLabImage = new ArrayList<JLabel>();
+	//private boolean isAlreadySaved = true;
+	//private boolean ThereIsDoublon = false;
+	//private boolean ThereIsColon = false;
+	
+	private int X = Gvar.MARGE;
+	private int Y = Gvar.MARGE;	
 	
 	public ManageEliminations() {
 		this.setLayout(null);
-
-		// Ajout des element de la liste de la combobox
-		for (int i = Gvar.MIN_TEAM_POULES; i <= Gvar.MAX_TEAM_POULES; i++)
-			ListNbrTeampByPoule.addElement("" + i);
+		PanElimination.setLayout(null);
+		
+		SpaceSeparatorHeight.add(30); // Liste qui contient les espaces entre deux branche differente de chaque palier
+		ListLabImage.add(new JLabel(new ImageIcon("0.png")));
+		ListLabImage.get(0).setBounds(Gvar.MARGE, Gvar.MARGE, 200, 90);
+		PanElimination.setComponentZOrder(ListLabImage.get(0), new Integer(0));
+		//PanElimination.add(ListLabImage.get(0));
 		
 		// Configuration JSCROLL
-		SPoulesContainer.setViewportView(PoulesContainer);
+		SEliminationContainer.setViewportView(PanElimination);
 		//SPoulesContainer.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		SPoulesContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		
-		// Configuration JPANEL
-		PoulesContainer.setLayout(null);
-		
-		
-		cobListNbrTeampByPoule.addActionListener(this);
-		butGeneratePoules.addActionListener(this);
+		SEliminationContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
 		butSave.addActionListener(this);
 		
-		//this.add(LabSelectionCob);
-		//this.add(cobListNbrTeampByPoule);
-		//this.add(butGeneratePoules);
-		this.add(SPoulesContainer);
-		//this.add(butSave);
+		this.add(SEliminationContainer);
+		this.add(butSave);
 		
 		objSetBounds(); //Positionne les objets dans le panel
 		
 		//parseTxtFile();
 		
-		if (ThereIsDoublon)
-			JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
-		if (ThereIsColon)
-			JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
+		//if (ThereIsDoublon)
+		//	JOptionPane.showMessageDialog(this, "<html>Il semble qu'il y ai des doublons<br />Les doubons n'ont donc pas été pris en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
+		//if (ThereIsColon)
+		//	JOptionPane.showMessageDialog(this, "<html>Une ou plusieurs équipes semble contenir le caractère \":\"<br />Elles n'ont pas été prisent en compte.</html>", "Fichier " + Gvar.FILE_NAME_POULES + " altéré", JOptionPane.ERROR_MESSAGE);
+		
 	}
 	
 	public void objSetBounds() {
-		LabSelectionCob.setBounds(Gvar.MARGE, Gvar.MARGE, Gvar.BUT_WIDTH + 50, Gvar.LAB_HEIGHT);
-		cobListNbrTeampByPoule.setBounds(Gvar.MARGE, LabSelectionCob.getY() + LabSelectionCob.getHeight(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		butGeneratePoules.setBounds(cobListNbrTeampByPoule.getX() + cobListNbrTeampByPoule.getWidth() + Gvar.MARGE, cobListNbrTeampByPoule.getY(), Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		SPoulesContainer.setBounds(0, cobListNbrTeampByPoule.getY() + cobListNbrTeampByPoule.getHeight() + Gvar.MARGE, Gvar.ONG_WIDTH - 4, Gvar.ONG_HEIGHT - ((4*Gvar.MARGE) + (2*Gvar.BUT_HEIGHT) + (Gvar.LAB_HEIGHT) + Gvar.ONG_HEADER_HEIGHT));
-		butSave.setBounds(Gvar.MARGE, SPoulesContainer.getY() + SPoulesContainer.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		//butGeneratePoules.setText("" + Gvar.ONG_WIDTH);
+		SEliminationContainer.setBounds(0, 0, Gvar.ONG_WIDTH - 4, Gvar.ONG_HEIGHT - ((2*Gvar.MARGE) + (1*Gvar.BUT_HEIGHT) + Gvar.ONG_HEADER_HEIGHT));
+		butSave.setBounds(Gvar.MARGE, SEliminationContainer.getY() + SEliminationContainer.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 	}
 	
-	public void setPoules() {
-		isAlreadySaved = false;
-		for (int i = 0; i < LabPoules.size(); i++) {
-			PoulesContainer.remove(LabPoules.get(i));
-			PoulesContainer.remove(ButPoules.get(i));
-			PoulesContainer.remove(ScrollListPoules.get(i));
+	private void initElimination() {
+		QualifiedList = Main.fen.getOnglets().getPanManagePoules().getQualifiedList();
+		for (int i = 0; i < QualifiedList.size(); i++) {
+			if (i % 2 == 0 && i > 0)
+				Y += SpaceSeparatorHeight.get(0);
+			CreateTeamButton(QualifiedList.get(i).toString());
 		}
-		LabPoules.clear();
-		ButPoules.clear();
-		ScrollListPoules.clear();
-		ListTeam.clear();
-		ListPoules.clear();
-		
-		copyListTeamSelected();
-		if (ListTeamSelected.size() > 0) {
-			int X = Gvar.MARGE;
-			int Y = 0;
-			int CobValue = Integer.parseInt(cobListNbrTeampByPoule.getSelectedItem().toString());
-			double CheckNbrPoules = (double)ListTeamSelected.size() / (double)CobValue;
-			int NbrPoules = (int)CheckNbrPoules;
-			for (int i = 1; i <= NbrPoules; i++) {
-				CreatePoule(i, X, Y, CobValue, DefineListCurrentPoule(CobValue));
-				PoulesContainer.add(LabPoules.get(i - 1));
-				PoulesContainer.add(ScrollListPoules.get(i - 1));
-				PoulesContainer.add(ButPoules.get(i - 1));
-				if (i % 4 == 0) {
-					X = Gvar.MARGE;
-					Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
-				}
-				else {
-					X += Gvar.MARGE + Gvar.POULE_WIDTH;
-				}
-			}
-			if ((double)CheckNbrPoules - (double)NbrPoules > 0)
-				addTheRest(NbrPoules + 1, X, Y, CobValue);
-			if (NbrPoules > 0)
-				PoulesContainer.setPreferredSize(new Dimension(Gvar.CURRENT_FEN_WIDTH, ButPoules.get(ButPoules.size() - 1).getY() + ButPoules.get(ButPoules.size() - 1).getHeight() + 1));
-			this.validate();
-			this.repaint();
-		}
+		PanElimination.setPreferredSize(new Dimension(Main.fen.getWidth(), ListButTeam.get(ListButTeam.size() - 1).getY() + ListButTeam.get(ListButTeam.size() - 1).getHeight() + 1));
+		this.validate();
+		this.repaint();
 	}
 	
-	private void addTheRest(int i, int X, int Y, int NbrTeam) {
-		if ((ListTeamSelected.size()) > (double)NbrTeam / 2.0 && ListTeamSelected.size() >= 3) {
-			CreatePoule(i, X, Y, NbrTeam, DefineListCurrentPoule(NbrTeam));
-			PoulesContainer.add(LabPoules.get(i - 1));
-			PoulesContainer.add(ScrollListPoules.get(i - 1));
-			PoulesContainer.add(ButPoules.get(i - 1));
-			if (i % 4 == 0) {
-				X = Gvar.MARGE;
-				Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
-			}
-			else {
-				X += Gvar.MARGE + Gvar.POULE_WIDTH;
-			}
-		}
-		else {
-			//int RandomPos = 0;
-			int j = 0;
-			while (ListTeamSelected.size() > 0) {
-				//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
-				ListTeam.get(j).addElement(ListTeamSelected.getElementAt(0));
-				ListTeamSelected.remove(0);
-				j++;
-			}
-		}
-			
+	private void CreateTeamButton(String TeamName) {
+		JButton TeamButton = new JButton(TeamName);
+		TeamButton.setBounds(X, Y, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
+		ListButTeam.add(TeamButton);
+		PanElimination.add(TeamButton);
+		//PanElimination.setComponentZOrder(TeamButton, 1);
+		Y += Gvar.BUT_HEIGHT + Gvar.MARGE;
 	}
 	
-	private void CreatePoule(int Num, int X, int Y, int NbrTeam, DefaultListModel<String> TmpList) {
-		JLabel NewLab = new JLabel("Poule " + Num);
-		NewLab.setBounds(X, Y, Gvar.POULE_WIDTH, Gvar.LAB_HEIGHT);
-		LabPoules.add(NewLab);
-		
-		ListTeam.add(TmpList);
-		JList<String> NewList = new JList<String>(TmpList);
-		NewList.addListSelectionListener(this);
-		NewList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
-		ListPoules.add(NewList);
-		JScrollPane NewListScroll = new JScrollPane();
-		NewListScroll.setViewportView(NewList);
-		NewListScroll.setBounds(X, NewLab.getY() + NewLab.getHeight(), Gvar.POULE_WIDTH, Gvar.POULE_HEIGHT);
-		ScrollListPoules.add(NewListScroll);
-		
-		JButton NewBut = new JButton("Cliquez sur le gagnant");
-		NewBut.addActionListener(this);
-		NewBut.setBounds(X, NewListScroll.getY() + NewListScroll.getHeight(), Gvar.POULE_WIDTH, Gvar.BUT_SLIM_HEIGHT);
-		ButPoules.add(NewBut);
-	}
-	
-	private void copyListTeamSelected() {
+	/*private void copyListTeamSelected() {
 		ListTeamSelected.clear();
 		for (int i = 0; i < Gvar.listSelected.size(); i++) {
 			ListTeamSelected.addElement(Gvar.listSelected.getElementAt(i));
 		}
-	}
+	}*/
 	
-	private DefaultListModel<String> DefineListCurrentPoule(int NbrTeam) {
-		DefaultListModel<String> TmpListPoule = new DefaultListModel<String>();
-		//int RandomPos = 0; // On verra quand on sera sur que ca fonctionne, pour le moment ca me permet d'etre sur qu'il prend bien toutes les equipe que je selectionne
-		int i = 0;
-		while (i < NbrTeam && ListTeamSelected.size() > 0) {
-			//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
-			TmpListPoule.addElement(ListTeamSelected.getElementAt(0));
-			ListTeamSelected.remove(0);
-			i++;
-		}
-		/*if (ListTeamSelected.size() % NbrTeam != 0) {
-			RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
-			TmpListPoule.addElement(ListTeamSelected.getElementAt(RandomPos));
-			ListTeamSelected.remove(RandomPos);
-		}*/
-			
-		return TmpListPoule;
-	}
-	
-	public void saveInTxtFile() {
+	/*public void saveInTxtFile() {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(Gvar.FILE_NAME_POULES, "UTF-8");
@@ -233,80 +118,16 @@ import javax.swing.ListSelectionModel;
 	private void parseTxtFile() {
 		File f = new File("./" + Gvar.FILE_NAME_POULES);
 		if(f.exists() && !f.isDirectory()) {
-			for (int i = 0; i < LabPoules.size(); i++) {
-				PoulesContainer.remove(LabPoules.get(i));
-				PoulesContainer.remove(ButPoules.get(i));
-				PoulesContainer.remove(ScrollListPoules.get(i));
-			}
-			LabPoules.clear();
-			ButPoules.clear();
-			ScrollListPoules.clear();
-			ListTeam.clear();
-			ListPoules.clear();
-			ListTeamSelected.clear();
 			
 			String Line;
 			int i = 0;
 			BufferedReader Buffer;
-			ArrayList<DefaultListModel<String>> TmpArray = new ArrayList<DefaultListModel<String>>();
-			int X = Gvar.MARGE;
-			int Y = 0;
-			int RankSetted = 0;
 			try {
 				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
 				while((Line = Buffer.readLine()) != null) {
 					if (!Line.isEmpty() && Line.contains("[Poule ")) {
-						if (TmpArray.size() > 0) {
-							CreatePoule(i, X, Y, 0, TmpArray.get(i - 1));
-							PoulesContainer.add(LabPoules.get(i - 1));
-							PoulesContainer.add(ScrollListPoules.get(i - 1));
-							PoulesContainer.add(ButPoules.get(i - 1));
-							if (i % 4 == 0) {
-								X = Gvar.MARGE;
-								Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
-							}
-							else {
-								X += Gvar.MARGE + Gvar.POULE_WIDTH;
-							}
-							if (RankSetted == 1)
-								ButPoules.get(i - 1).setText("Cliquez sur le 2ème");
-							else if (RankSetted == 2)
-								ButPoules.get(i - 1).setText("Initaliser");
-						}
-						TmpArray.add(new DefaultListModel<String>());
-						RankSetted = 0;
-						i++;
+						
 					}
-					else if (!Line.isEmpty() && TmpArray.size() > 0) {
-						if (!isDoublon(Line, ListTeamSelected) /*&& !isColon(Line)*/) {
-							TmpArray.get(i - 1).addElement(Line);
-							ListTeamSelected.addElement(Line);
-							if (Line.contains("1 : ") && RankSetted == 0)
-								RankSetted = 1;
-							else if (Line.contains("2 : "))
-								RankSetted = 2;
-						}
-					}
-				}
-				if (TmpArray.size() > 0) {
-					CreatePoule(i, X, Y, 0, TmpArray.get(i - 1));
-					PoulesContainer.add(LabPoules.get(i - 1));
-					PoulesContainer.add(ScrollListPoules.get(i - 1));
-					PoulesContainer.add(ButPoules.get(i - 1));
-					if (i % 4 == 0) {
-						X = Gvar.MARGE;
-						Y += 3*Gvar.MARGE + Gvar.LAB_HEIGHT + Gvar.POULE_HEIGHT;
-					}
-					else {
-						X += Gvar.MARGE + Gvar.POULE_WIDTH;
-					}
-					if (RankSetted == 1)
-						ButPoules.get(i - 1).setText("Cliquez sur le 2ème");
-					else if (RankSetted == 2)
-						ButPoules.get(i - 1).setText("Initaliser");
-					PoulesContainer.setPreferredSize(new Dimension(Gvar.CURRENT_FEN_WIDTH, ButPoules.get(ButPoules.size() - 1).getY() + ButPoules.get(ButPoules.size() - 1).getHeight() + 1));
-					this.validate();
-					this.repaint();
 				}
 				Buffer.close();
 			} catch (IOException e) { } 
@@ -326,7 +147,7 @@ import javax.swing.ListSelectionModel;
 		return false;
 	}
 	
-	/*private boolean isColon(String StrToCheck) {
+	private boolean isColon(String StrToCheck) {
 		if (StrToCheck.contains(":")) {
 			ThereIsColon = true;
 			return true;
@@ -334,75 +155,16 @@ import javax.swing.ListSelectionModel;
 		return false;
 	}*/
 	
+	/*public boolean getIsAlreadySaved() {
+		return isAlreadySaved;
+	}*/
+	
 	//Declenché lorsque un bouton est cliqué
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == cobListNbrTeampByPoule) {
-			//setPoules();
+		if (e.getSource() == butSave) {
+			//saveInTxtFile();
+			initElimination();
 		}
-		else if (e.getSource() == butSave && ListTeam.size() > 0) {
-			saveInTxtFile();
-		}
-		else if (e.getSource() == butGeneratePoules) {
-			setPoules();
-		}
-		else {
-			int i = 0;
-			boolean Found = false;
-			//JOptionPane.showMessageDialog(this, TmpJList.getSelectedValue().toString());
-			while (i < ButPoules.size() && !Found) {
-				if (ButPoules.get(i) == e.getSource())
-					Found = true;
-				else
-					i++;
-			}
-			if (ButPoules.get(i).getText().toString().equals("Initaliser")) {
-				ButPoules.get(i).setText("Cliquez sur le gagnant");
-				for (int j = 0; j < ListTeam.get(i).size(); j++) {
-					if (ListTeam.get(i).getElementAt(j).toString().contains("1 : "))
-						ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("1 : ", ""), j);
-					else if (ListTeam.get(i).getElementAt(j).toString().contains("2 : "))
-						ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("2 : ", ""), j); 
-				}
-			}
-				
-		}
-	}
-	
-	//Declenché lorsque un element different de la liste est selectionné
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() instanceof JList) {
-			int i = 0;
-			boolean Found = false;
-			while (i < ListPoules.size() && !Found) {
-				if (ListPoules.get(i) == e.getSource())
-					Found = true;
-				else
-					i++;
-			}
-			if (Found && ListPoules.get(i).getSelectedIndex() >= 0) {
-				if (ButPoules.get(i).getText().toString().equals("Cliquez sur le gagnant")) {
-					ButPoules.get(i).setText("Cliquez sur le 2ème");
-					ListTeam.get(i).set(ListPoules.get(i).getSelectedIndex(), "1 : " + ListPoules.get(i).getSelectedValue());
-					ListPoules.get(i).clearSelection();
-					isAlreadySaved = false;
-				}
-				else if (ButPoules.get(i).getText().toString().equals("Cliquez sur le 2ème") && !ListPoules.get(i).getSelectedValue().toString().contains("1 : ")) {
-					ButPoules.get(i).setText("Initaliser");
-					ListTeam.get(i).set(ListPoules.get(i).getSelectedIndex(), "2 : " + ListPoules.get(i).getSelectedValue());
-					ListPoules.get(i).clearSelection();
-					isAlreadySaved = false;
-				}
-			}
-		}
-	}
-
-	public boolean getIsAlreadySaved() {
-		return isAlreadySaved;
-	}
-	
-	public ArrayList<DefaultListModel<String>> getListTeam() {
-		return ListTeam;
 	}
 }

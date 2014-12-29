@@ -47,7 +47,15 @@ public class Onglets extends JTabbedPane implements ChangeListener {
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		String TmpTitleTab = ((JTabbedPane)e.getSource()).getTitleAt(((JTabbedPane)e.getSource()).getSelectedIndex());
-		if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageSelection))
+		if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageSelection)) {
+			panManageSelection.objSetBounds();
 			Main.fen.getOnglets().getPanManageSelection().setListTeam();
+		}
+		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageTeam))
+			panManageTeam.objSetBounds();
+		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManagePoules))
+			panManagePoules.objSetBounds();
+		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageEliminations))
+			panManageEliminations.objSetBounds();
 	}
 }

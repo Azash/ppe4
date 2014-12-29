@@ -97,7 +97,7 @@ import javax.swing.ListSelectionModel;
 			LabPoules.get(i).setBounds(X, Y, Gvar.POULE_WIDTH, Gvar.LAB_HEIGHT);
 			ScrollListPoules.get(i).setBounds(X, LabPoules.get(i).getY() + LabPoules.get(i).getHeight(), Gvar.POULE_WIDTH, Gvar.POULE_HEIGHT);
 			ButPoules.get(i).setBounds(X, ScrollListPoules.get(i).getY() + ScrollListPoules.get(i).getHeight(), Gvar.POULE_WIDTH, Gvar.BUT_SLIM_HEIGHT);
-			ButPoules.get(0).setText((i + 1) * (Gvar.MARGE + Gvar.POULE_WIDTH) + " " + SPoulesContainer.getWidth());
+			//ButPoules.get(0).setText((i + 1) * (Gvar.MARGE + Gvar.POULE_WIDTH) + " " + SPoulesContainer.getWidth());
 			//JOptionPane.showMessageDialog(this, (i + 1) * (Gvar.MARGE + Gvar.POULE_WIDTH) + " " + SPoulesContainer.getWidth());
 			NbrPouleByLine++;
 			if (NbrPouleByLine * (Gvar.MARGE + Gvar.POULE_WIDTH) > SPoulesContainer.getWidth()) {
@@ -110,6 +110,25 @@ import javax.swing.ListSelectionModel;
 			}
 			
 		}
+	}
+	
+	public DefaultListModel<String> getQualifiedList() {
+		DefaultListModel<String> QualifiedList = new DefaultListModel<String>();
+		int j;
+		int BothAreFound;
+		
+		for (int i = 0; i < ListTeam.size(); i++) {
+			j = 0;
+			BothAreFound = 0;
+			while (BothAreFound < 2 && j < ListTeam.get(i).size()) {
+				if (ListTeam.get(i).get(j).contains("1 : ") || ListTeam.get(i).get(j).contains("2 : ")) {
+					QualifiedList.addElement(ListTeam.get(i).get(j).toString());
+					BothAreFound++;
+				}
+				j++;
+			}
+		}
+		return QualifiedList;
 	}
 	
 	public void setPoules() {

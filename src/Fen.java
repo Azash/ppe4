@@ -103,10 +103,14 @@ class Fen extends JFrame implements ComponentListener {
 		Gvar.ONG_WIDTH = Gvar.CURRENT_FEN_WIDTH - 17;
 		Gvar.ONG_HEIGHT = Gvar.CURRENT_FEN_HEIGHT - ((Gvar.ONG_HEADER_HEIGHT - Gvar.MARGE) + 10);
 		TabOnglets.ongletsSetBounds();
-		TabOnglets.getPanManageEliminations().objSetBounds();
-		TabOnglets.getPanManageTeam().objSetBounds();
-		TabOnglets.getPanManageSelection().objSetBounds();
-		TabOnglets.getPanManagePoules().objSetBounds();
+		if (TabOnglets.getTitleAt(TabOnglets.getSelectedIndex()).contains(Gvar.BUT_STR_LOAD_ManageTeam))
+			TabOnglets.getPanManageTeam().objSetBounds();
+		else if (TabOnglets.getTitleAt(TabOnglets.getSelectedIndex()).contains(Gvar.BUT_STR_LOAD_ManageSelection))
+			TabOnglets.getPanManageSelection().objSetBounds();
+		else if (TabOnglets.getTitleAt(TabOnglets.getSelectedIndex()).contains(Gvar.BUT_STR_LOAD_ManagePoules))
+			TabOnglets.getPanManagePoules().objSetBounds();
+		else if (TabOnglets.getTitleAt(TabOnglets.getSelectedIndex()).contains(Gvar.BUT_STR_LOAD_ManageEliminations))
+			TabOnglets.getPanManageEliminations().objSetBounds();
 	}
 
 	@Override
