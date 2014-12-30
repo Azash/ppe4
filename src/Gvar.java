@@ -37,7 +37,7 @@ public class Gvar {
 	//----------------------------------------------
 	
 	//Contient le nom du panel sur lequel on se trouve. Au lancement du programme : BUT_STR_LOAD_Menu : "Menu"
-	public static String FEN_TITLE = "Je sais pas comment appeler se foutu programme";
+	public static String FEN_TITLE = "Gestion de tournoi by AzashBitch";
 	
 	//liste qui contient les équipes enregistrees
 	public static DefaultListModel<String> listData = new DefaultListModel<String>(); 
