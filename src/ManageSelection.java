@@ -194,6 +194,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 			if (e.getClickCount() == 2) {
 				Rectangle r;
 				if (e.getSource() == teamList) {
+					System.out.println("teamlist");
 					//Si je clalcul r deux fois c'est parce qu'autrement j'ai un warning que j'arrive pas a enlever et j'aime pas ca
 					r =  teamList.getCellBounds(0, teamList.getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
 					if (r != null && r.contains(e.getPoint())) {
@@ -204,7 +205,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 					}
 				}
 				else if (e.getSource() == teamSelected) {
-					r =  teamList.getCellBounds(0, teamList.getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
+					r =  teamSelected.getCellBounds(0, teamSelected.getLastVisibleIndex()); // Pour etre sur qu'il clique sur un des elements et non pas sur rien
 					if (r != null && r.contains(e.getPoint())) {
 						int index = teamSelected.locationToIndex(e.getPoint());
 						listTeam.addElement(Gvar.listSelected.get(index).toString());

@@ -1,7 +1,11 @@
 //import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -11,9 +15,10 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.Border;
 
 
- class ManageEliminations extends JPanel implements ActionListener{
+ class ManageEliminations extends JPanel implements ActionListener, MouseListener{
 	private static final long serialVersionUID = 1L;
 	//private Random ObjRandom = new Random();--------------------------------
 
@@ -22,29 +27,30 @@ import javax.swing.JScrollPane;
 	private JScrollPane SEliminationContainer = new JScrollPane(PanElimination);
 	private JButton butSave = new JButton("Sauver");
 	private ArrayList<Integer> SpaceSeparatorHeight = new ArrayList<Integer>();
-	private ArrayList<JButton> ListButTeam = new ArrayList<JButton>();
+	private ArrayList<JLabel> ListLabTeam = new ArrayList<JLabel>();
 	private ArrayList<JLabel> ListLabImage = new ArrayList<JLabel>();
 	//private boolean isAlreadySaved = true;
 	//private boolean ThereIsDoublon = false;
 	//private boolean ThereIsColon = false;
 	
 	private int X = Gvar.MARGE;
-	private int Y = Gvar.MARGE;	
+	private int Y = 0;	
 	
 	public ManageEliminations() {
 		this.setLayout(null);
 		PanElimination.setLayout(null);
 		
-		SpaceSeparatorHeight.add(30); // Liste qui contient les espaces entre deux branche differente de chaque palier
-		ListLabImage.add(new JLabel(new ImageIcon("0.png")));
-		ListLabImage.get(0).setBounds(Gvar.MARGE, Gvar.MARGE, 200, 90);
-		PanElimination.setComponentZOrder(ListLabImage.get(0), new Integer(0));
-		//PanElimination.add(ListLabImage.get(0));
+		SpaceSeparatorHeight.add(0); // Liste qui contient les espaces entre deux branche differente de chaque palier
+		
+		//ListLabImage.add(new JLabel(new ImageIcon("0.png"))); // 2
+		//ListLabImage.add(new JLabel(new ImageIcon("1.png"))); // 4
+		//ListLabImage.add(new JLabel(new ImageIcon("2.png"))); // 8
+		//ListLabImage.add(new JLabel(new ImageIcon("3.png"))); // 16
 		
 		// Configuration JSCROLL
 		SEliminationContainer.setViewportView(PanElimination);
 		//SPoulesContainer.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		SEliminationContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		//SEliminationContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 		butSave.addActionListener(this);
 		
@@ -67,25 +73,78 @@ import javax.swing.JScrollPane;
 		butSave.setBounds(Gvar.MARGE, SEliminationContainer.getY() + SEliminationContainer.getHeight() + Gvar.MARGE, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
 	}
 	
-	private void initElimination() {
+	public void initElimination() {
+		PanElimination.removeAll();
 		QualifiedList = Main.fen.getOnglets().getPanManagePoules().getQualifiedList();
-		for (int i = 0; i < QualifiedList.size(); i++) {
-			if (i % 2 == 0 && i > 0)
-				Y += SpaceSeparatorHeight.get(0);
-			CreateTeamButton(QualifiedList.get(i).toString());
+		if (QualifiedList.size() > 0) {
+			int PowerOfTwo = getPowerOfTwo(QualifiedList.size());
+			System.out.println("PowerOfTwo = " + PowerOfTwo);
+			int i;
+			int ImgNum = 0;
+			int Level = 2;
+			int Height = 100;
+			int MaxPrefferedHeight = 0;
+			int MaxPrefferedWidth = 0;
+			while (Level <= PowerOfTwo) {
+				System.out.println("--- Par " + Level);
+				i = 0;
+				Y = 0;
+				while (i < PowerOfTwo) {
+					System.out.println(i + "+" + ImgNum);
+					JLabel TmpLab = new JLabel(new ImageIcon(ImgNum + ".png")); 
+					TmpLab.setBounds(Gvar.MARGE + (200 * ImgNum), Y, 200, Height);
+					MaxPrefferedHeight = TmpLab.getHeight() + TmpLab.getY();
+					MaxPrefferedWidth = TmpLab.getWidth() + TmpLab.getX();
+					PanElimination.add(TmpLab, 0);
+					Y += TmpLab.getHeight();
+					i += Level;
+				}
+				ImgNum++;
+				Level *= 2;
+				Height *= 2;
+			}
+			Y = Gvar.MARGE / 2;
+			for (i = 0; i < QualifiedList.size(); i++) {
+				if (i % 2 == 0 && i > 0)
+					Y += SpaceSeparatorHeight.get(0);
+				CreateTeamLabel(QualifiedList.get(i).toString());
+				//Y += Gvar.BUT_HEIGHT + Gvar.MARGE;
+			}
+			/*Y = (Gvar.MARGE / 2) + (Gvar.BUT_HEIGHT + Gvar.MARGE);
+			for (i = 0; i < PowerOfTwo / 2; i++) {
+				if (i + (PowerOfTwo / 2) < QualifiedList.size()) {
+					if (i % 2 == 0 && i > 0)
+						Y += SpaceSeparatorHeight.get(0);
+					CreateTeamLabel(QualifiedList.get(i + (PowerOfTwo / 2)).toString());
+				}
+			}*/
+			if  (ListLabTeam.size() > 0)
+				PanElimination.setPreferredSize(new Dimension(MaxPrefferedWidth + Gvar.MARGE, MaxPrefferedHeight));
 		}
-		PanElimination.setPreferredSize(new Dimension(Main.fen.getWidth(), ListButTeam.get(ListButTeam.size() - 1).getY() + ListButTeam.get(ListButTeam.size() - 1).getHeight() + 1));
 		this.validate();
 		this.repaint();
 	}
 	
-	private void CreateTeamButton(String TeamName) {
-		JButton TeamButton = new JButton(TeamName);
-		TeamButton.setBounds(X, Y, Gvar.BUT_WIDTH, Gvar.BUT_HEIGHT);
-		ListButTeam.add(TeamButton);
-		PanElimination.add(TeamButton);
-		//PanElimination.setComponentZOrder(TeamButton, 1);
-		Y += Gvar.BUT_HEIGHT + Gvar.MARGE;
+	private int getPowerOfTwo(int Nbr) {
+		int PowerOfTwo = 1;
+		while (PowerOfTwo < Nbr) {
+			PowerOfTwo *= 2;
+		}
+		System.out.println(PowerOfTwo);
+		return PowerOfTwo;
+	}
+	
+	private void CreateTeamLabel(String TeamName) {
+		//JButton TeamButton = new JButton(TeamName);
+		JLabel TeamLabel = new JLabel(TeamName);
+		TeamLabel.setBounds(X, Y, Gvar.BUT_WIDTH, Gvar.LAB_HEIGHT);
+		TeamLabel.addMouseListener(this);
+		TeamLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		TeamLabel.setForeground(Color.black);
+		ListLabTeam.add(TeamLabel);
+		//ListButTeam.add(TeamButton);
+		PanElimination.add(TeamLabel, 0);
+		Y += (Gvar.BUT_HEIGHT + Gvar.MARGE);
 	}
 	
 	/*private void copyListTeamSelected() {
@@ -166,5 +225,92 @@ import javax.swing.JScrollPane;
 			//saveInTxtFile();
 			initElimination();
 		}
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getSource() instanceof JLabel) {
+			int i = 0;
+			boolean Found = false;
+			//JOptionPane.showMessageDialog(this, TmpJList.getSelectedValue().toString());
+			while (i < ListLabTeam.size() && !Found) {
+				if (ListLabTeam.get(i) == e.getSource())
+					Found = true;
+				else
+					i++;
+			}
+			if (Found) {
+				System.out.println(ListLabTeam.get(i).getText().toString());
+				ListLabTeam.get(i).setForeground(Color.blue);
+				int TargetX = ListLabTeam.get(i).getX() + 200;
+				int TargetY = 0;
+				int PosX = ListLabTeam.get(i).getX();
+				int PosY = ListLabTeam.get(i).getY();
+				int AddY = 1;
+				int ImgHeight = 102;
+				int DefaultWidth = 200;
+				while (PosX > DefaultWidth) {
+					//if (PosX > 200)
+						ImgHeight *= 2;
+						DefaultWidth += 200;
+					System.out.println("ValImgHeight : " + ImgHeight);
+				}
+				ImgHeight /= 2;
+				
+				if (i % 2 == 0 && i + 1 < ListLabTeam.size()) {
+					ListLabTeam.get(i + 1).setForeground(Color.gray);
+					TargetY = ListLabTeam.get(i).getY() + (ImgHeight / 2) ;
+				}
+				else if (i - 1 >= 0) {
+					ListLabTeam.get(i - 1).setForeground(Color.gray);
+					TargetY = ListLabTeam.get(i).getY() - (ImgHeight / 2) ;
+					AddY = -1;
+				}
+				System.out.println(PosX + "/" + PosY + " to " + TargetX + "/" + TargetY);
+				System.out.println("Inc : " + AddY);
+				System.out.println("ImgHeight : " + ImgHeight);
+				while (PosY != TargetY || PosX < TargetX) {
+					ListLabTeam.get(i).setLocation(PosX, PosY);
+					if (PosY != TargetY)
+						PosY += AddY;
+					if (PosX < TargetX)
+						PosX++;
+					/*try {
+						System.out.println(PosX + " " + PosY);
+						Thread.sleep(0);
+						PanElimination.repaint();
+						//this.repaint();
+						//Main.fen.repaint();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}*/
+				}
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

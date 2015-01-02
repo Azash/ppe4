@@ -403,16 +403,17 @@ import javax.swing.ListSelectionModel;
 				else
 					i++;
 			}
-			if (ButPoules.get(i).getText().toString().equals("Initaliser")) {
-				ButPoules.get(i).setText("Cliquez sur le gagnant");
-				for (int j = 0; j < ListTeam.get(i).size(); j++) {
-					if (ListTeam.get(i).getElementAt(j).toString().contains("1 : "))
-						ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("1 : ", ""), j);
-					else if (ListTeam.get(i).getElementAt(j).toString().contains("2 : "))
-						ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("2 : ", ""), j); 
+			if (Found) {
+				if (ButPoules.get(i).getText().toString().equals("Initaliser")) {
+					ButPoules.get(i).setText("Cliquez sur le gagnant");
+					for (int j = 0; j < ListTeam.get(i).size(); j++) {
+						if (ListTeam.get(i).getElementAt(j).toString().contains("1 : "))
+							ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("1 : ", ""), j);
+						else if (ListTeam.get(i).getElementAt(j).toString().contains("2 : "))
+							ListTeam.get(i).setElementAt(ListTeam.get(i).getElementAt(j).toString().replace("2 : ", ""), j); 
+					}
 				}
 			}
-				
 		}
 	}
 	

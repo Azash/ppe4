@@ -12,6 +12,7 @@ import java.io.UnsupportedEncodingException;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -20,10 +21,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-
  class ManageTeam extends JPanel implements ActionListener, ListSelectionListener {
 	private static final long serialVersionUID = 1L;
 	private JScrollPane scrollTeamList = new JScrollPane();
+	
 	private JButton butAddTeam = new JButton("Ajouter une équipe");
 	private JButton butDelTeam = new JButton("Supprimer l'équipe sélèctionnée");
 	private JButton butSave = new JButton("Sauver");
@@ -37,6 +38,17 @@ import javax.swing.ListSelectionModel;
 	//Correspond au numéro d'index du JList (teamList) sélèctionné (par default -1 car rien n'est sélèctionné)
 	private int idSelected = -1;
 	
+	protected ImageIcon createImageIcon(String path,
+            String description) {
+java.net.URL imgURL = getClass().getResource(path);
+if (imgURL != null) {
+return new ImageIcon(imgURL, description);
+} else {
+System.err.println("Couldn't find file: " + path);
+return null;
+}
+}
+	
 	public ManageTeam() {
 		this.setLayout(null);
 		
@@ -44,6 +56,12 @@ import javax.swing.ListSelectionModel;
 		teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Desactive la selection multiple
 		scrollTeamList.setViewportView(teamList);
 		
+		//butAddTeam.setBorder(new RoundedBorder(5));
+		/*butAddTeam.setBackground(null);
+		butAddTeam.setContentAreaFilled(false); 
+		butAddTeam.setHorizontalTextPosition(SwingConstants.CENTER);
+		butAddTeam.setIcon(createImageIcon("ButUnClick2.png", "toto"));
+		butAddTeam.setBorderPainted(false);*/
 		textBox.addActionListener(this);
 		butAddTeam.addActionListener(this);
 		teamList.addListSelectionListener(this); // Permet de savoir quand on selectionne un element different : valueChanged

@@ -55,7 +55,9 @@ public class Onglets extends JTabbedPane implements ChangeListener {
 			panManageTeam.objSetBounds();
 		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManagePoules))
 			panManagePoules.objSetBounds();
-		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageEliminations))
+		else if (TmpTitleTab.contains(Gvar.BUT_STR_LOAD_ManageEliminations)) {
 			panManageEliminations.objSetBounds();
+			panManageEliminations.initElimination();
+		}
 	}
 }
