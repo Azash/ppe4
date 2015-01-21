@@ -28,7 +28,7 @@ import javax.swing.border.Border;
 	private JButton butSave = new JButton("Sauver");
 	private ArrayList<Integer> SpaceSeparatorHeight = new ArrayList<Integer>();
 	private ArrayList<JLabel> ListLabTeam = new ArrayList<JLabel>();
-	private ArrayList<JLabel> ListLabImage = new ArrayList<JLabel>();
+	//private ArrayList<JLabel> ListLabImage = new ArrayList<JLabel>();
 	//private boolean isAlreadySaved = true;
 	//private boolean ThereIsDoublon = false;
 	//private boolean ThereIsColon = false;
@@ -78,27 +78,52 @@ import javax.swing.border.Border;
 		QualifiedList = Main.fen.getOnglets().getPanManagePoules().getQualifiedList();
 		if (QualifiedList.size() > 0) {
 			int PowerOfTwo = getPowerOfTwo(QualifiedList.size());
-			System.out.println("PowerOfTwo = " + PowerOfTwo);
+			//System.out.println("PowerOfTwo = " + PowerOfTwo);
 			int i;
 			int ImgNum = 0;
 			int Level = 2;
 			int Height = 100;
 			int MaxPrefferedHeight = 0;
 			int MaxPrefferedWidth = 0;
+			int Ytmp = 0;
 			while (Level <= PowerOfTwo) {
-				System.out.println("--- Par " + Level);
+				System.out.println("--- Par " + Level + " ... " + PowerOfTwo);
 				i = 0;
 				Y = 0;
 				while (i < PowerOfTwo) {
-					System.out.println(i + "+" + ImgNum);
+					//System.out.println(i + "+" + ImgNum);
 					JLabel TmpLab = new JLabel(new ImageIcon(ImgNum + ".png")); 
 					TmpLab.setBounds(Gvar.MARGE + (200 * ImgNum), Y, 200, Height);
 					MaxPrefferedHeight = TmpLab.getHeight() + TmpLab.getY();
 					MaxPrefferedWidth = TmpLab.getWidth() + TmpLab.getX();
 					PanElimination.add(TmpLab, 0);
+					System.out.println("Valeur de i : " + i);
+					
+					JLabel TmpTeamLab = new JLabel("Hé BIM ! " + i);
+					TmpTeamLab.setBounds(Gvar.MARGE + (200 * ImgNum), Y + Ytmp + 7, 200, 20);
+					TmpTeamLab.addMouseListener(this);
+					TmpTeamLab.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					TmpTeamLab.setForeground(Color.black);
+					ListLabTeam.add(TmpTeamLab);
+					PanElimination.add(TmpTeamLab, 0);
+					System.out.println("Bim 1 setted " + i);
+					
+					TmpTeamLab = new JLabel("BouM ! " + i);
+					TmpTeamLab.setBounds(Gvar.MARGE + (200 * ImgNum), Y + TmpLab.getHeight() - (43 + Ytmp), 200, 20);
+					TmpTeamLab.addMouseListener(this);
+					TmpTeamLab.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+					TmpTeamLab.setForeground(Color.black);
+					ListLabTeam.add(TmpTeamLab);
+					PanElimination.add(TmpTeamLab, 0);
+					System.out.println("Boum 2 setted " + i);
 					Y += TmpLab.getHeight();
 					i += Level;
 				}
+				System.out.println("??? " + Ytmp);
+				if (Level == 2)
+					Ytmp = 25;
+				if (Level > 2)
+					Ytmp = (Ytmp * 2) + 26;
 				ImgNum++;
 				Level *= 2;
 				Height *= 2;
@@ -107,7 +132,7 @@ import javax.swing.border.Border;
 			for (i = 0; i < QualifiedList.size(); i++) {
 				if (i % 2 == 0 && i > 0)
 					Y += SpaceSeparatorHeight.get(0);
-				CreateTeamLabel(QualifiedList.get(i).toString());
+				//CreateTeamLabel(QualifiedList.get(i).toString());
 				//Y += Gvar.BUT_HEIGHT + Gvar.MARGE;
 			}
 			/*Y = (Gvar.MARGE / 2) + (Gvar.BUT_HEIGHT + Gvar.MARGE);
