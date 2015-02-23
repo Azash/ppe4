@@ -1,4 +1,6 @@
+
 import javax.swing.DefaultListModel;
+
 
 //Cette classe est en gros notre super global qu'on appel de n'importe ou.
 //On peu la considerer un peu comme une feuille CSS en Web elle sert a la mise en page
@@ -19,6 +21,7 @@ public class Gvar {
 	public static final String FILE_NAME_TEAM = "ListeDesEquipes.txt"; //Nom du fichier dans lequel on stock / on importe les equipes
 	public static final String FILE_NAME_TEAM_SELECTED = "ListeDesEquipesSelectionnees.txt"; //Nom du fichier dans lequel on stock / on importe les equipes selectionnees
 	public static final String FILE_NAME_POULES = "ListeDesPoules.txt"; //Nom du fichier dans lequel on stock / on importe les poules
+	public static final String FILE_NAME_ELIMINATION = "ListeDesEliminations.txt";
 	public static final int MIN_TEAM_POULES = 3; //Nombre minimum d'equipe par poule
 	public static final int MAX_TEAM_POULES = 6; //Nombre maximum d'equipe par poule
 	public static final int POULE_HEIGHT = 140; // Hauteur de la liste d'une poule
@@ -44,4 +47,5 @@ public class Gvar {
 	//liste qui contient les équipes selectionnees
 	public static DefaultListModel<String> listSelected = new DefaultListModel<String>(); 
 	
+
 }

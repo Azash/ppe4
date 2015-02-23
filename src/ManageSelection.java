@@ -99,6 +99,7 @@ public class ManageSelection extends JPanel implements ActionListener, ListSelec
 				writer.println(Gvar.listSelected.get(i).toString());
 			writer.close();
 			isAlreadySaved = true;
+			Main.fen.getOnglets().getPanManageEliminations().UploadToFtp(Gvar.FILE_NAME_TEAM_SELECTED);
 		}
 	}
 	

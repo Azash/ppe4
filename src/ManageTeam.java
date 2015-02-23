@@ -157,6 +157,7 @@ return null;
 				writer.println(Gvar.listData.get(i).toString());
 			writer.close();
 			isAlreadySaved = true;
+			Main.fen.getOnglets().getPanManageEliminations().UploadToFtp(Gvar.FILE_NAME_TEAM);
 		}
 	}
 	

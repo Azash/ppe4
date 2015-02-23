@@ -63,6 +63,15 @@ class Fen extends JFrame implements ComponentListener {
 			        if (confirm == JOptionPane.YES_OPTION)
 			        	TabOnglets.getPanManagePoules().saveInTxtFile();
 		    	}
+		    	// listes de la gestion des poules
+		    	if (TabOnglets.getPanManageEliminations().getListTeam().size() > 0 && !TabOnglets.getPanManageEliminations().getIsAlreadySaved()) {
+			        int confirm = JOptionPane.showOptionDialog(Gfen,
+			                "Souhaitez vous sauvegarder la liste des éliminations avant de quitter ?\nCette action ecrasera \"" + Gvar.FILE_NAME_ELIMINATION + "\"",
+			                "Save Confirmation", JOptionPane.YES_NO_OPTION,
+			                JOptionPane.QUESTION_MESSAGE, null, null, null);
+			        if (confirm == JOptionPane.YES_OPTION)
+			        	TabOnglets.getPanManageEliminations().saveInTxtFile();
+		    	}
 		    }
 		};		
 		Gfen.addWindowListener(exitListener); // Ajout de l'écoute de le fenetre sur le fenetre

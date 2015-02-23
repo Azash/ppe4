@@ -1,45 +1,45 @@
 [Poule 1]
-1 : equipe 1
-2 : equipe 2
-equipe 3
+1 : equipe 4
+equipe 14
+2 : equipe 19
 
 [Poule 2]
-1 : equipe 4
-2 : equipe 5
-equipe 6
+1 : equipe 8
+equipe 1
+2 : equipe 26
 
 [Poule 3]
-1 : equipe 7
-2 : equipe 8
-equipe 9
+equipe 10
+1 : equipe 18
+2 : equipe 25
 
 [Poule 4]
-1 : equipe 10
-2 : equipe 11
-equipe 12
-
-[Poule 5]
-1 : equipe 13
-2 : equipe 14
-equipe 15
-
-[Poule 6]
-1 : equipe 16
-2 : equipe 17
-equipe 18
-
-[Poule 7]
-1 : equipe 19
-2 : equipe 20
-equipe 21
-
-[Poule 8]
-1 : equipe 22
+1 : equipe 20
 2 : equipe 23
 equipe 24
 
+[Poule 5]
+1 : equipe 15
+equipe 12
+2 : equipe 17
+
+[Poule 6]
+1 : equipe 16
+equipe 13
+2 : equipe 22
+
+[Poule 7]
+1 : equipe 27
+2 : equipe 11
+equipe 6
+
+[Poule 8]
+equipe 2
+1 : equipe 5
+2 : equipe 21
+
 [Poule 9]
-1 : equipe 25
-2 : equipe 26
-equipe 27
+equipe 7
+1 : equipe 3
+2 : equipe 9
 

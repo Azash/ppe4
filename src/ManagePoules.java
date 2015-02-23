@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -39,7 +40,7 @@ import javax.swing.ListSelectionModel;
 	private JLabel LabSelectionCob = new JLabel("Nombre d'équipes par poules : ");
 	private DefaultComboBoxModel<String> ListNbrTeampByPoule = new DefaultComboBoxModel<String>();
 	private JComboBox<String> cobListNbrTeampByPoule = new JComboBox<String>(ListNbrTeampByPoule);
-	//private Random ObjRandom = new Random();
+	private Random ObjRandom = new Random();
 	
 	private JPanel PoulesContainer = new JPanel();
 	private JScrollPane SPoulesContainer = new JScrollPane(PoulesContainer);
@@ -193,12 +194,12 @@ import javax.swing.ListSelectionModel;
 			}
 		}
 		else {
-			//int RandomPos = 0;
+			int RandomPos = 0;
 			int j = 0;
 			while (ListTeamSelected.size() > 0) {
-				//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
-				ListTeam.get(j).addElement(ListTeamSelected.getElementAt(0));
-				ListTeamSelected.remove(0);
+				RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
+				ListTeam.get(j).addElement(ListTeamSelected.getElementAt(RandomPos));
+				ListTeamSelected.remove(RandomPos);
 				j++;
 			}
 		}
@@ -235,19 +236,19 @@ import javax.swing.ListSelectionModel;
 	
 	private DefaultListModel<String> DefineListCurrentPoule(int NbrTeam) {
 		DefaultListModel<String> TmpListPoule = new DefaultListModel<String>();
-		//int RandomPos = 0; // On verra quand on sera sur que ca fonctionne, pour le moment ca me permet d'etre sur qu'il prend bien toutes les equipe que je selectionne
+		int RandomPos = 0; // On verra quand on sera sur que ca fonctionne, pour le moment ca me permet d'etre sur qu'il prend bien toutes les equipe que je selectionne
 		int i = 0;
 		while (i < NbrTeam && ListTeamSelected.size() > 0) {
-			//RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
-			TmpListPoule.addElement(ListTeamSelected.getElementAt(0));
-			ListTeamSelected.remove(0);
-			i++;
-		}
-		/*if (ListTeamSelected.size() % NbrTeam != 0) {
 			RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
 			TmpListPoule.addElement(ListTeamSelected.getElementAt(RandomPos));
 			ListTeamSelected.remove(RandomPos);
-		}*/
+			i++;
+		}
+		if (ListTeamSelected.size() % NbrTeam != 0) {
+			RandomPos = ObjRandom.nextInt(ListTeamSelected.size());
+			TmpListPoule.addElement(ListTeamSelected.getElementAt(RandomPos));
+			ListTeamSelected.remove(RandomPos);
+		}
 			
 		return TmpListPoule;
 	}
@@ -269,6 +270,7 @@ import javax.swing.ListSelectionModel;
 			writer.close();
 			isAlreadySaved = true;
 		}
+		Main.fen.getOnglets().getPanManageEliminations().UploadToFtp(Gvar.FILE_NAME_POULES);
 	}
 	
 	//Fonction a simplifier sinon je vomis (sutout que c'est presque le copier colle de setPoules
