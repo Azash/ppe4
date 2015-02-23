@@ -338,7 +338,6 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
 							
 						i++;
 					}
-						
 					if (isFirstTour  && !Line.contains("------") && !Line.contains(" tour]") && !Line.isEmpty()) {
 						if (Line.equals("-"))
 							QualifiedList.addElement("");
