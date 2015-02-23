@@ -319,7 +319,6 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
 			BufferedReader Buffer;
 			try {
 				System.out.println("IMPORT DU FICHIER DEBUT");
-				boolean isNewTour = false;
 				boolean isFirstTour = false;
 				Buffer = new BufferedReader(new InputStreamReader(new FileInputStream(f))); 
 				ArrayList<String> LabelsStr = new ArrayList<String>();
@@ -332,7 +331,6 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
 					else if (Line.contains(" tour]")) {
 						System.out.println("Nouveau TOUR !!!");
 						isFirstTour = false;
-						isNewTour = true;
 						
 						if (i > 0)
 							PaliersImport.add(LabelsStr);
